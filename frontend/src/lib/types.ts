@@ -57,6 +57,7 @@ export interface TaskBrief {
   start_time: string | null;
   end_time: string | null;
   energy_cost: number;
+  scheduling_type?: string;
 }
 
 export interface Task {
@@ -73,6 +74,7 @@ export interface Task {
   start_time: string | null;
   end_time: string | null;
   energy_cost: number;
+  scheduling_type: string;
   created_at: string;
   updated_at: string;
 }
@@ -253,3 +255,36 @@ export const ENERGY_COLORS: Record<number, string> = {
   2: "text-amber-400",
   3: "text-red-400",
 };
+
+export interface ChatMessage {
+  id: string;
+  sender_id: string;
+  sender_username: string | null;
+  project_id: string | null;
+  task_id: string | null;
+  content: string;
+  created_at: string;
+}
+
+export interface ScheduledSlot {
+  task_id: string;
+  task_title: string;
+  start_time: string;
+  end_time: string;
+  energy_cost: number;
+}
+
+export interface AiScheduleResponse {
+  scheduled: ScheduledSlot[];
+  message: string;
+  unscheduled_count: number;
+}
+
+export interface ProjectMember {
+  id: string;
+  project_id: string;
+  user_id: string;
+  username: string | null;
+  role: string;
+  created_at: string;
+}

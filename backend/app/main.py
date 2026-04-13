@@ -4,16 +4,32 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import engine, Base
-from app.routers import projects, bom_items, phases, tasks, events, inbox, schedule, prompts, auth, friends, graph, ai_brief, geo
+from app.routers import projects, bom_items, phases, tasks, events, inbox, schedule, prompts, auth, friends, graph, ai_brief, geo, chat, ai_schedule
 
 import app.models  # noqa: F401 — ensure all models are registered
+
+
+async def _safe_add_columns(conn):
+    """Add new columns to existing tables without dropping data."""
+    from sqlalchemy import text
+    columns = [
+        ("tasks", "scheduling_type", "VARCHAR(20) DEFAULT 'fluid'"),
+        ("events", "scheduling_type", "VARCHAR(20) DEFAULT 'fixed'"),
+    ]
+    for table, col, coltype in columns:
+        try:
+            await conn.execute(text(
+                f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} {coltype}"
+            ))
+        except Exception:
+            pass
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+        await _safe_add_columns(conn)
     yield
     await engine.dispose()
 
@@ -46,6 +62,8 @@ app.include_router(friends.router, prefix="/api")
 app.include_router(graph.router, prefix="/api")
 app.include_router(ai_brief.router, prefix="/api")
 app.include_router(geo.router, prefix="/api")
+app.include_router(chat.router)
+app.include_router(ai_schedule.router)
 
 
 @app.get("/api/health")

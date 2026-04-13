@@ -139,4 +139,20 @@ export const api = {
   processInboxItem: (id: string, action: string) =>
     request<Record<string, unknown>>(`/inbox/${id}/process`, { method: "POST", body: JSON.stringify({ action }) }),
   deleteInboxItem: (id: string) => request<void>(`/inbox/${id}`, { method: "DELETE" }),
+
+  // Chat
+  getChatMessages: (roomId: string, limit = 50) =>
+    request<import("./types").ChatMessage[]>(`/chat/${roomId}?limit=${limit}`),
+
+  // Project Members
+  addProjectMember: (projectId: string, userId: string, role = "viewer") =>
+    request<import("./types").ProjectMember>(`/projects/${projectId}/members`, {
+      method: "POST", body: JSON.stringify({ user_id: userId, role }),
+    }),
+  listProjectMembers: (projectId: string) =>
+    request<import("./types").ProjectMember[]>(`/projects/${projectId}/members`),
+
+  // AI Schedule (Stones & Sand)
+  aiSchedule: (date?: string) =>
+    request<import("./types").AiScheduleResponse>(`/ai-schedule${date ? `?date=${encodeURIComponent(date)}` : ""}`, { method: "POST" }),
 };
