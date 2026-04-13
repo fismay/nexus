@@ -7,7 +7,9 @@ from app.database import get_db
 from app.models.inbox_item import InboxItem
 from app.models.task import Task
 from app.models.event import Event
+from app.models.user import User
 from app.schemas.inbox import InboxItemCreate, InboxItemRead, InboxProcessAction
+from app.services.auth import require_user
 
 router = APIRouter(prefix="/inbox", tags=["inbox"])
 
@@ -16,10 +18,11 @@ router = APIRouter(prefix="/inbox", tags=["inbox"])
 async def list_inbox(
     processed: bool = False,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
 ):
     query = (
         select(InboxItem)
-        .where(InboxItem.is_processed == processed)
+        .where(InboxItem.owner_id == user.id, InboxItem.is_processed == processed)
         .order_by(InboxItem.created_at.desc())
     )
     result = await db.execute(query)
@@ -27,8 +30,12 @@ async def list_inbox(
 
 
 @router.post("/", response_model=InboxItemRead, status_code=status.HTTP_201_CREATED)
-async def create_inbox_item(data: InboxItemCreate, db: AsyncSession = Depends(get_db)):
-    item = InboxItem(**data.model_dump())
+async def create_inbox_item(
+    data: InboxItemCreate,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
+):
+    item = InboxItem(**data.model_dump(), owner_id=user.id)
     db.add(item)
     await db.flush()
     await db.refresh(item)
@@ -40,10 +47,10 @@ async def process_inbox_item(
     item_id: UUID,
     action: InboxProcessAction,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
 ):
-    """Обработать входящее: превратить в задачу или событие"""
     item = await db.get(InboxItem, item_id)
-    if not item:
+    if not item or item.owner_id != user.id:
         raise HTTPException(status_code=404, detail="Inbox item not found")
 
     if item.is_processed:
@@ -58,6 +65,7 @@ async def process_inbox_item(
             deadline=parsed.get("deadline"),
             project_id=None,
             context_tags=parsed.get("context_tags", []),
+            owner_id=user.id,
         )
         db.add(task)
         await db.flush()
@@ -69,6 +77,7 @@ async def process_inbox_item(
             start_time=parsed.get("start_time"),
             end_time=parsed.get("end_time"),
             event_type=parsed.get("event_type", "other"),
+            owner_id=user.id,
         )
         db.add(event)
         await db.flush()
@@ -81,8 +90,12 @@ async def process_inbox_item(
 
 
 @router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_inbox_item(item_id: UUID, db: AsyncSession = Depends(get_db)):
+async def delete_inbox_item(
+    item_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
+):
     item = await db.get(InboxItem, item_id)
-    if not item:
+    if not item or item.owner_id != user.id:
         raise HTTPException(status_code=404, detail="Inbox item not found")
     await db.delete(item)

@@ -5,24 +5,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.event import Event
+from app.models.user import User
 from app.schemas.event import (
     ICalImportRequest,
     ICalImportResponse,
     ICalConfirmRequest,
-    ICalPreviewEvent,
     EventRead,
 )
 from app.services.ical_parser import parse_ical, smart_color
+from app.services.auth import require_user
 
 router = APIRouter(prefix="/schedule", tags=["schedule"])
 
 
 @router.post("/preview", response_model=ICalImportResponse)
 async def preview_import(data: ICalImportRequest):
-    """
-    Шаг 1: принимает URL или raw iCal текст, возвращает предпросмотр
-    списка пар БЕЗ сохранения в БД.
-    """
     raw_text = data.raw_text
 
     if data.url and not raw_text:
@@ -58,17 +55,17 @@ async def preview_import(data: ICalImportRequest):
 async def confirm_import(
     data: ICalConfirmRequest,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
 ):
-    """
-    Шаг 2: пользователь подтвердил — сохраняем выбранные события в БД.
-    Дедупликация по ical_uid: если уже есть — пропускаем.
-    """
     created = []
 
     for ev_data in data.events:
         if ev_data.ical_uid:
             existing = await db.execute(
-                select(Event).where(Event.ical_uid == ev_data.ical_uid).limit(1)
+                select(Event).where(
+                    Event.ical_uid == ev_data.ical_uid,
+                    Event.owner_id == user.id,
+                ).limit(1)
             )
             if existing.scalar_one_or_none():
                 continue
@@ -95,6 +92,7 @@ async def confirm_import(
             ical_uid=ev_data.ical_uid,
             color=smart_color(ev_data.smart_tag),
             recurrence_interval=interval,
+            owner_id=user.id,
         )
         db.add(event)
         await db.flush()

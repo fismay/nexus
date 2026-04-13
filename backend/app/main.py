@@ -15,6 +15,9 @@ async def _safe_add_columns(conn):
     columns = [
         ("tasks", "scheduling_type", "VARCHAR(20) DEFAULT 'fluid'"),
         ("events", "scheduling_type", "VARCHAR(20) DEFAULT 'fixed'"),
+        ("projects", "owner_id", "UUID REFERENCES users(id) ON DELETE SET NULL"),
+        ("inbox_items", "owner_id", "UUID REFERENCES users(id) ON DELETE SET NULL"),
+        ("prompts", "owner_id", "UUID REFERENCES users(id) ON DELETE SET NULL"),
     ]
     for table, col, coltype in columns:
         try:

@@ -19,6 +19,7 @@ async def find_conflict(
     start_time: datetime,
     end_time: datetime,
     exclude_event_id=None,
+    owner_id=None,
 ) -> ConflictWarning:
     """
     Ищет событие, пересекающееся с заданным временным интервалом.
@@ -43,6 +44,8 @@ async def find_conflict(
 
     if exclude_event_id:
         query = query.where(Event.id != exclude_event_id)
+    if owner_id:
+        query = query.where(Event.owner_id == owner_id)
 
     result = await db.execute(query)
     all_events = result.scalars().all()

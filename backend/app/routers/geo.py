@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.event import Event
+from app.models.user import User
+from app.services.auth import require_user
 
 router = APIRouter(prefix="/geo", tags=["geo"])
 
@@ -25,6 +27,7 @@ async def suggest_slot(
     lon: float = Query(...),
     duration_min: int = Query(60),
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
 ):
     """
     Given a location and desired duration, find the best time slot
@@ -37,6 +40,7 @@ async def suggest_slot(
 
     result = await db.execute(
         select(Event).where(
+            Event.owner_id == user.id,
             Event.start_time >= day_start,
             Event.end_time <= day_end,
         ).order_by(Event.start_time)

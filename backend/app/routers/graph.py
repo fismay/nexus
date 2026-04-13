@@ -1,26 +1,33 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.project import Project
 from app.models.task import Task
 from app.models.bom_item import BOMItem
+from app.models.user import User
+from app.services.auth import require_user
 
 router = APIRouter(prefix="/graph", tags=["graph"])
 
 
 @router.get("/")
-async def get_dependency_graph(db: AsyncSession = Depends(get_db)):
-    """
-    Returns a node+edge graph for React Flow.
-    Nodes: Projects, Tasks, BOM items.
-    Edges: project→task, task→blocker_bom_item.
-    """
-    projects = (await db.execute(select(Project))).scalars().all()
-    tasks = (await db.execute(select(Task))).scalars().all()
-    bom_items = (await db.execute(select(BOMItem))).scalars().all()
+async def get_dependency_graph(
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
+):
+    projects = (await db.execute(
+        select(Project).where(Project.owner_id == user.id)
+    )).scalars().all()
+    tasks = (await db.execute(
+        select(Task).where(Task.owner_id == user.id)
+    )).scalars().all()
+
+    project_ids = {p.id for p in projects}
+    bom_items = (await db.execute(
+        select(BOMItem).where(BOMItem.project_id.in_(project_ids)) if project_ids else select(BOMItem).where(False)
+    )).scalars().all()
 
     nodes = []
     edges = []

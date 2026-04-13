@@ -9,6 +9,8 @@ from app.database import get_db
 from app.models.task import Task
 from app.models.project import Project
 from app.models.bom_item import BOMItem
+from app.models.user import User
+from app.services.auth import require_user
 
 router = APIRouter(prefix="/ai-brief", tags=["ai-brief"])
 
@@ -16,7 +18,10 @@ STALE_DAYS = 14
 
 
 @router.get("/")
-async def get_ai_brief(db: AsyncSession = Depends(get_db)):
+async def get_ai_brief(
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
+):
     """
     Analyzes projects, tasks, and BOM for stalled items.
     Returns structured insights (no LLM required for basic analysis).
@@ -28,6 +33,7 @@ async def get_ai_brief(db: AsyncSession = Depends(get_db)):
     # Stalled tasks: not completed, not updated in 14 days
     stale_tasks = (await db.execute(
         select(Task).where(
+            Task.owner_id == user.id,
             Task.is_completed == False,  # noqa: E712
             Task.updated_at < cutoff,
         ).limit(10)
@@ -73,6 +79,7 @@ async def get_ai_brief(db: AsyncSession = Depends(get_db)):
     # Projects with no recent activity
     stale_projects = (await db.execute(
         select(Project).where(
+            Project.owner_id == user.id,
             Project.status.in_(["planning", "active"]),
             Project.updated_at < cutoff,
         ).limit(5)

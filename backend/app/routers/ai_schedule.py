@@ -10,7 +10,9 @@ from app.database import get_db
 from app.config import settings
 from app.models.task import Task
 from app.models.event import Event
+from app.models.user import User
 from app.schemas.ai_schedule import AiScheduleResponse, ScheduledSlot
+from app.services.auth import require_user
 
 router = APIRouter(tags=["ai-schedule"])
 
@@ -140,6 +142,7 @@ def _fallback_schedule(
 async def ai_schedule(
     date: str = Query(default=""),
     session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
 ):
     if not date:
         target = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -150,13 +153,14 @@ async def ai_schedule(
     day_end = target.replace(hour=23)
 
     events_q = select(Event).where(
-        and_(Event.start_time >= day_start, Event.end_time <= day_end)
+        and_(Event.owner_id == user.id, Event.start_time >= day_start, Event.end_time <= day_end)
     )
     result = await session.execute(events_q)
     day_events = result.scalars().all()
 
     fixed_tasks_q = select(Task).where(
         and_(
+            Task.owner_id == user.id,
             Task.start_time >= day_start,
             Task.end_time <= day_end,
             Task.scheduling_type == "fixed",
@@ -177,6 +181,7 @@ async def ai_schedule(
 
     fluid_q = select(Task).where(
         and_(
+            Task.owner_id == user.id,
             Task.scheduling_type == "fluid",
             Task.is_completed == False,  # noqa: E712
             Task.start_time == None,  # noqa: E711
