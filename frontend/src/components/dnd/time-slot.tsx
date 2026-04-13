@@ -38,14 +38,15 @@ export function TimeSlot({
   return (
     <div
       ref={setNodeRef}
-      className={`flex border-t border-border min-h-[52px] transition-colors ${
+      className={`flex border-t border-border transition-colors ${
         isOver ? "bg-accent/10" : isCurrent ? "bg-accent/5" : ""
       }`}
+      style={{ minHeight: 60, gridRow: `${hour - 6} / ${hour - 5}` }}
     >
-      <div className="w-16 flex-shrink-0 text-xs text-muted text-right pr-3 pt-2">
+      <div className="w-16 flex-shrink-0 text-xs text-muted text-right pr-3 pt-2 font-mono">
         {timeLabel}
       </div>
-      <div className="flex-1 p-1 flex flex-wrap gap-1">
+      <div className="flex-1 p-1 flex flex-wrap gap-1 relative">
         {events.map((ev) => (
           <div
             key={ev.id}
@@ -63,8 +64,7 @@ export function TimeSlot({
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                PRIORITY_COLORS[task.priority]?.replace("text-", "bg-") ||
-                "bg-muted"
+                PRIORITY_COLORS[task.priority]?.replace("text-", "bg-") || "bg-muted"
               }`}
             />
             <span className="truncate">{task.title}</span>
