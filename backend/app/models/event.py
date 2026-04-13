@@ -45,6 +45,11 @@ class Event(Base):
         Integer, nullable=True
     )  # INTERVAL из RRULE (2 = раз в 2 недели)
 
+    # Stones & Sand: fixed vs fluid
+    scheduling_type: Mapped[str] = mapped_column(
+        String(20), default="fixed"
+    )  # fixed | fluid
+
     # Smart Routing: geo-fields
     latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     longitude: Mapped[float | None] = mapped_column(Float, nullable=True)

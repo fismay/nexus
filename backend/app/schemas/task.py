@@ -13,6 +13,7 @@ class TaskBase(BaseModel):
     blocker_bom_item_id: UUID | None = None
     context_tags: list[str] = Field(default_factory=list)
     energy_cost: int = Field(default=2, ge=1, le=3)
+    scheduling_type: str = "fluid"
 
 
 class TaskCreate(TaskBase):
@@ -32,6 +33,7 @@ class TaskUpdate(BaseModel):
     start_time: datetime | None = None
     end_time: datetime | None = None
     energy_cost: int | None = Field(default=None, ge=1, le=3)
+    scheduling_type: str | None = None
 
 
 class TimeboxAssign(BaseModel):
@@ -53,6 +55,7 @@ class TaskRead(BaseModel):
     start_time: datetime | None
     end_time: datetime | None
     energy_cost: int
+    scheduling_type: str
     created_at: datetime
     updated_at: datetime
 

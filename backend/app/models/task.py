@@ -52,6 +52,11 @@ class Task(Base):
     # Stamina Bar
     energy_cost: Mapped[int] = mapped_column(Integer, default=2)
 
+    # Stones & Sand: fixed vs fluid
+    scheduling_type: Mapped[str] = mapped_column(
+        String(20), default="fluid"
+    )  # fixed | fluid
+
     # Smart Routing: geo-fields
     location_name: Mapped[str | None] = mapped_column(String(300), nullable=True)
     latitude: Mapped[float | None] = mapped_column(Float, nullable=True)

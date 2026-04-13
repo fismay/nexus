@@ -18,6 +18,7 @@ class EventBase(BaseModel):
     week_parity: str | None = None
     recurrence_interval: int | None = None
     ical_uid: str | None = None
+    scheduling_type: str = "fixed"
 
 
 class EventCreate(EventBase):
@@ -37,6 +38,7 @@ class EventUpdate(BaseModel):
     location: str | None = None
     smart_tag: str | None = None
     week_parity: str | None = None
+    scheduling_type: str | None = None
 
 
 class EventRead(EventBase):
