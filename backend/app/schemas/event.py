@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class EventBase(BaseModel):
@@ -19,6 +19,23 @@ class EventBase(BaseModel):
     recurrence_interval: int | None = None
     ical_uid: str | None = None
     scheduling_type: str = "fixed"
+
+    @field_validator(
+        "description",
+        "recurrence_rule",
+        "color",
+        "location",
+        "ical_uid",
+        "smart_tag",
+        "week_parity",
+        mode="before",
+    )
+    @classmethod
+    def empty_str_to_none(cls, v):
+        """Пустая строка в JSON ломает UNIQUE (owner_id, ical_uid): второй '' даёт duplicate key."""
+        if v == "":
+            return None
+        return v
 
 
 class EventCreate(EventBase):
@@ -39,6 +56,21 @@ class EventUpdate(BaseModel):
     smart_tag: str | None = None
     week_parity: str | None = None
     scheduling_type: str | None = None
+
+    @field_validator(
+        "description",
+        "recurrence_rule",
+        "color",
+        "location",
+        "smart_tag",
+        "week_parity",
+        mode="before",
+    )
+    @classmethod
+    def empty_str_to_none(cls, v):
+        if v == "":
+            return None
+        return v
 
 
 class EventRead(EventBase):

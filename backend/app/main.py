@@ -9,6 +9,16 @@ from app.routers import projects, bom_items, phases, tasks, events, inbox, sched
 import app.models  # noqa: F401 — ensure all models are registered
 
 
+async def _normalize_events_ical_uid_empty_strings(conn):
+    """Старые клиенты могли сохранить ical_uid='' — ломает UNIQUE (owner_id, ical_uid)."""
+    from sqlalchemy import text
+
+    try:
+        await conn.execute(text("UPDATE events SET ical_uid = NULL WHERE ical_uid = ''"))
+    except Exception:
+        pass
+
+
 async def _safe_add_columns(conn):
     """Add new columns to existing tables without dropping data."""
     from sqlalchemy import text
@@ -32,6 +42,7 @@ async def _safe_add_columns(conn):
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await _normalize_events_ical_uid_empty_strings(conn)
         await _safe_add_columns(conn)
     yield
     await engine.dispose()

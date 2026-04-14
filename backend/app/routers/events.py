@@ -15,6 +15,22 @@ from app.services.auth import require_user
 router = APIRouter(prefix="/events", tags=["events"])
 
 
+def _normalize_optional_strings(payload: dict) -> dict:
+    """Пустые строки в optional полях дают duplicate key на UNIQUE (owner_id, ical_uid)."""
+    for key in (
+        "description",
+        "recurrence_rule",
+        "color",
+        "location",
+        "ical_uid",
+        "smart_tag",
+        "week_parity",
+    ):
+        if payload.get(key) == "":
+            payload[key] = None
+    return payload
+
+
 @router.get("/", response_model=list[EventRead])
 async def list_events(
     start: datetime | None = Query(None),
@@ -39,7 +55,8 @@ async def create_event(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_user),
 ):
-    event = Event(**data.model_dump(), owner_id=user.id)
+    payload = _normalize_optional_strings(data.model_dump())
+    event = Event(**payload, owner_id=user.id)
     db.add(event)
     await db.flush()
     await db.refresh(event)

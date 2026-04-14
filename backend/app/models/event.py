@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import String, Text, ForeignKey, DateTime, Boolean, Integer, Float, func
+from sqlalchemy import String, Text, ForeignKey, DateTime, Boolean, Integer, Float, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
@@ -8,6 +8,9 @@ from app.database import Base
 
 class Event(Base):
     __tablename__ = "events"
+    __table_args__ = (
+        UniqueConstraint("owner_id", "ical_uid", name="uq_events_owner_ical_uid"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
@@ -34,7 +37,7 @@ class Event(Base):
 
     # iCal Import fields
     location: Mapped[str | None] = mapped_column(String(300), nullable=True)
-    ical_uid: Mapped[str | None] = mapped_column(String(500), nullable=True, unique=True)
+    ical_uid: Mapped[str | None] = mapped_column(String(500), nullable=True)
     smart_tag: Mapped[str | None] = mapped_column(
         String(30), nullable=True
     )  # @theory | @practice
