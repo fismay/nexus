@@ -11,9 +11,10 @@ import {
   BookOpen,
   FlaskConical,
   MapPin,
+  ListTodo,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import type { CalendarEvent, ProjectCard } from "@/lib/types";
+import type { CalendarEvent, ProjectCard, Task } from "@/lib/types";
 import { SMART_TAG_COLORS } from "@/lib/types";
 import { WorkBlockModal } from "@/components/work-block-modal";
 import { EventCreateModal } from "@/components/event-create-modal";
@@ -63,8 +64,61 @@ function getEventColor(ev: CalendarEvent): string {
   return EVENT_TYPE_COLORS[ev.event_type] || EVENT_TYPE_COLORS.other;
 }
 
+/** Горизонтали внутри блока — визуально «несколько ячеек» по вертикали */
+function HourMatrixStripes({ blockHeightPx }: { blockHeightPx: number }) {
+  if (blockHeightPx <= PX_PER_HOUR + 0.5) return null;
+  const lines: number[] = [];
+  for (let i = 1; i * PX_PER_HOUR < blockHeightPx - 0.5; i++) {
+    lines.push(i);
+    if (i > 48) break;
+  }
+  return (
+    <>
+      {lines.map((i) => (
+        <div
+          key={i}
+          className="pointer-events-none absolute left-0 right-0 z-[1] border-t border-white/18"
+          style={{ top: i * PX_PER_HOUR }}
+        />
+      ))}
+    </>
+  );
+}
+
+type DayBlock =
+  | { kind: "event"; ev: CalendarEvent }
+  | { kind: "task"; task: Task };
+
+function buildDayBlocks(
+  day: Date,
+  events: CalendarEvent[],
+  tasks: Task[]
+): DayBlock[] {
+  const blocks: DayBlock[] = [];
+  for (const ev of events) {
+    if (isSameDay(new Date(ev.start_time), day)) {
+      blocks.push({ kind: "event", ev });
+    }
+  }
+  for (const task of tasks) {
+    if (!task.start_time || !task.end_time) continue;
+    if (isSameDay(new Date(task.start_time), day)) {
+      blocks.push({ kind: "task", task });
+    }
+  }
+  blocks.sort((a, b) => {
+    const sa =
+      a.kind === "event" ? a.ev.start_time : a.task.start_time!;
+    const sb =
+      b.kind === "event" ? b.ev.start_time : b.task.start_time!;
+    return new Date(sa).getTime() - new Date(sb).getTime();
+  });
+  return blocks;
+}
+
 export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [projects, setProjects] = useState<ProjectCard[]>([]);
   const [weekStart, setWeekStart] = useState(() => getWeekStart(new Date()));
   const [loading, setLoading] = useState(true);
@@ -85,9 +139,14 @@ export default function CalendarPage() {
     const end = new Date(
       weekDays[6].getTime() + 24 * 60 * 60 * 1000
     ).toISOString();
-    Promise.all([api.listEvents(start, end), api.listProjects()])
-      .then(([e, p]) => {
+    Promise.all([
+      api.listEvents(start, end),
+      api.listTasks(),
+      api.listProjects(),
+    ])
+      .then(([e, t, p]) => {
         setEvents(e);
+        setTasks(t);
         setProjects(p);
       })
       .catch(() => {})
@@ -110,9 +169,6 @@ export default function CalendarPage() {
     setWeekStart(d);
   };
   const toToday = () => setWeekStart(getWeekStart(new Date()));
-
-  const getEventsForDay = (day: Date) =>
-    events.filter((e) => isSameDay(new Date(e.start_time), day));
 
   const today = new Date();
 
@@ -253,7 +309,7 @@ export default function CalendarPage() {
                 </td>
                 {weekDays.map((day, di) => {
                   const isTodayCol = isSameDay(day, today);
-                  const dayEvents = getEventsForDay(day);
+                  const dayBlocks = buildDayBlocks(day, events, tasks);
                   return (
                     <td
                       key={di}
@@ -275,9 +331,16 @@ export default function CalendarPage() {
                           ))}
                         </div>
                         <div className="absolute inset-0 z-[1] px-0.5">
-                          {dayEvents.map((ev) => {
-                            const start = new Date(ev.start_time);
-                            const end = new Date(ev.end_time);
+                          {dayBlocks.map((block) => {
+                            const isTask = block.kind === "task";
+                            const ev = block.kind === "event" ? block.ev : null;
+                            const task = block.kind === "task" ? block.task : null;
+                            const start = new Date(
+                              isTask ? task!.start_time! : ev!.start_time
+                            );
+                            const end = new Date(
+                              isTask ? task!.end_time! : ev!.end_time
+                            );
                             let topMin = minutesFromGridStart(start, FIRST_HOUR);
                             let endMin = minutesFromGridStart(end, FIRST_HOUR);
                             if (endMin <= topMin) {
@@ -298,46 +361,66 @@ export default function CalendarPage() {
                             if (topPx + heightPx > GRID_HEIGHT_PX) {
                               heightPx = Math.max(GRID_HEIGHT_PX - topPx, 18);
                             }
-                            const colors = getEventColor(ev);
-                            return (
-                              <div
-                                key={`${ev.id}-${start.toISOString()}`}
-                                className={`absolute left-0.5 right-0.5 ${colors} ${
+                            const colors = ev
+                              ? `${getEventColor(ev)} ${
                                   ev.ical_uid
                                     ? "border-l-2 border-dashed"
                                     : "border-l-[1.5px]"
-                                } rounded-r px-1 py-px text-[10px] leading-tight overflow-hidden`}
-                                style={{ top: topPx, height: heightPx }}
-                                title={[
-                                  ev.title,
-                                  ev.location ? `📍 ${ev.location}` : "",
+                                }`
+                              : "bg-teal-500/25 border-teal-400 border-l-[1.5px]";
+                            const key = isTask
+                              ? `task-${task!.id}-${start.toISOString()}`
+                              : `ev-${ev!.id}-${start.toISOString()}`;
+                            const title = isTask
+                              ? [
+                                  `Задача: ${task!.title}`,
                                   `${start.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })} – ${end.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}`,
-                                  ev.smart_tag === "@theory"
+                                ].join("\n")
+                              : [
+                                  ev!.title,
+                                  ev!.location ? `📍 ${ev!.location}` : "",
+                                  `${start.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })} – ${end.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}`,
+                                  ev!.smart_tag === "@theory"
                                     ? "📖 Лекция"
-                                    : ev.smart_tag === "@practice"
+                                    : ev!.smart_tag === "@practice"
                                       ? "🔬 Практика"
                                       : "",
                                 ]
                                   .filter(Boolean)
-                                  .join("\n")}
+                                  .join("\n");
+                            return (
+                              <div
+                                key={key}
+                                className={`absolute left-0.5 right-0.5 rounded-r px-1 py-px text-[10px] leading-tight overflow-hidden ${colors}`}
+                                style={{ top: topPx, height: heightPx }}
+                                title={title}
                               >
-                                <div className="flex min-h-0 items-start gap-0.5">
-                                  {ev.smart_tag === "@theory" && (
-                                    <BookOpen className="w-2.5 h-2.5 flex-shrink-0" />
-                                  )}
-                                  {ev.smart_tag === "@practice" && (
-                                    <FlaskConical className="w-2.5 h-2.5 flex-shrink-0" />
+                                <HourMatrixStripes blockHeightPx={heightPx} />
+                                <div className="relative z-[2] flex min-h-0 items-start gap-0.5">
+                                  {isTask ? (
+                                    <ListTodo className="w-2.5 h-2.5 flex-shrink-0 text-teal-200" />
+                                  ) : (
+                                    <>
+                                      {ev!.smart_tag === "@theory" && (
+                                        <BookOpen className="w-2.5 h-2.5 flex-shrink-0" />
+                                      )}
+                                      {ev!.smart_tag === "@practice" && (
+                                        <FlaskConical className="w-2.5 h-2.5 flex-shrink-0" />
+                                      )}
+                                    </>
                                   )}
                                   <span className="line-clamp-3 break-words">
-                                    {ev.title}
+                                    {isTask ? task!.title : ev!.title}
                                   </span>
                                 </div>
-                                {heightPx > 28 && ev.location && (
-                                  <div className="mt-0.5 flex items-center gap-0.5 truncate text-[9px] opacity-70">
-                                    <MapPin className="w-2 h-2 flex-shrink-0" />
-                                    <span className="truncate">{ev.location}</span>
-                                  </div>
-                                )}
+                                {!isTask &&
+                                  heightPx > 28 &&
+                                  ev!.location && (
+                                    <div className="relative z-[2] mt-0.5 flex items-center gap-0.5 truncate text-[9px] opacity-70">
+                                      <MapPin className="w-2 h-2 flex-shrink-0" />
+                                      <span className="truncate">{ev!.location}</span>
+                                    </div>
+                                  )}
                               </div>
                             );
                           })}
@@ -372,6 +455,10 @@ export default function CalendarPage() {
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 bg-red-500/30 border border-red-500 rounded" />
           Дедлайны
+        </span>
+        <span className="flex items-center gap-1.5">
+          <ListTodo className="w-3 h-3 text-teal-400" />
+          Задача (таймбокс)
         </span>
       </div>
 

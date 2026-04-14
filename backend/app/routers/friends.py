@@ -1,5 +1,5 @@
 from uuid import UUID
-from datetime import date as Date, datetime, timedelta
+from datetime import date as Date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, or_, and_
@@ -20,6 +20,40 @@ router = APIRouter(prefix="/friends", tags=["friends"])
 
 # Границы «дня» для совместного расписания — локальный календарный день (пары из вуза в MSK).
 CALENDAR_TZ = ZoneInfo("Europe/Moscow")
+
+
+def _overlaps_local_calendar_day(
+    st: datetime,
+    et: datetime,
+    day_start: datetime,
+    day_end: datetime,
+) -> bool:
+    """Пересечение интервала события с локальным календарным днём (CALENDAR_TZ)."""
+    if st.tzinfo is None:
+        st = st.replace(tzinfo=timezone.utc)
+    if et.tzinfo is None:
+        et = et.replace(tzinfo=timezone.utc)
+    st_l = st.astimezone(CALENDAR_TZ)
+    et_l = et.astimezone(CALENDAR_TZ)
+    return st_l < day_end and et_l > day_start
+
+
+async def _require_accepted_friendship(
+    db: AsyncSession, user_id: UUID, friend_id: UUID
+) -> None:
+    if user_id == friend_id:
+        raise HTTPException(status_code=400, detail="Укажите другого пользователя")
+    row = await db.execute(
+        select(Friendship).where(
+            Friendship.status == "accepted",
+            or_(
+                and_(Friendship.requester_id == user_id, Friendship.addressee_id == friend_id),
+                and_(Friendship.requester_id == friend_id, Friendship.addressee_id == user_id),
+            ),
+        ).limit(1)
+    )
+    if row.scalar_one_or_none() is None:
+        raise HTTPException(status_code=403, detail="Доступно только для принятых друзей")
 
 
 def _merge_intervals(
@@ -164,7 +198,7 @@ async def _busy_intervals_for_user(
     for ev in expanded:
         st = ev.start_time
         et = ev.end_time
-        if et <= day_start or st >= day_end:
+        if not _overlaps_local_calendar_day(st, et, day_start, day_end):
             continue
         day_events_read.append(_event_obj_to_read(ev))
         s = max(st, clip_start)
@@ -220,6 +254,8 @@ async def shared_schedule(
         d = Date.fromisoformat(date)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date, use YYYY-MM-DD")
+
+    await _require_accepted_friendship(db, user.id, friend_id)
 
     day_start = datetime(d.year, d.month, d.day, 0, 0, 0, tzinfo=CALENDAR_TZ)
     day_end = day_start + timedelta(days=1)
