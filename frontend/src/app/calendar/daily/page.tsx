@@ -253,23 +253,25 @@ export default function DailyViewPage() {
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Daily View</h1>
-            <p className="text-muted mt-1 text-sm">
+            <p className="text-muted mt-1 text-xs sm:text-sm">
               {viewMode === "timeline" ? "Горизонтальная ось времени" : "Перетащите задачи на временные слоты"}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap sm:justify-end">
             <button
+              type="button"
               onClick={handleMagicSchedule}
               disabled={aiLoading || backlogTasks.length === 0}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 disabled:opacity-40 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 min-h-11 rounded-xl text-xs font-medium bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 disabled:opacity-40 transition-colors"
             >
-              <Sparkles className={`w-3.5 h-3.5 ${aiLoading ? "animate-spin" : ""}`} />
-              {aiLoading ? "Распределяю..." : "Magic Schedule"}
+              <Sparkles className={`w-3.5 h-3.5 shrink-0 ${aiLoading ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">{aiLoading ? "Распределяю..." : "Magic Schedule"}</span>
+              <span className="sm:hidden">{aiLoading ? "…" : "Magic"}</span>
             </button>
             <div className="flex items-center bg-card border border-border rounded-lg p-0.5">
               <button
@@ -310,7 +312,7 @@ export default function DailyViewPage() {
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
-          <span className={`text-sm font-medium capitalize ${isToday ? "text-accent" : "text-muted"}`}>
+          <span className={`text-xs sm:text-sm font-medium capitalize text-right max-w-[55%] sm:max-w-none truncate sm:whitespace-normal ${isToday ? "text-accent" : "text-muted"}`}>
             {dateLabel}
           </span>
         </div>

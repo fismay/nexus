@@ -67,24 +67,24 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Дашборд</h1>
-        <p className="text-muted mt-1">Обзор проектов и задач</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Дашборд</h1>
+        <p className="text-muted mt-1 text-sm sm:text-base">Обзор проектов и задач</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {stats.map((s) => (
           <div
             key={s.label}
-            className="bg-card border border-border rounded-xl p-5 flex items-center gap-4"
+            className="bg-card border border-border rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 min-h-[4.5rem]"
           >
-            <div className={`p-3 rounded-lg bg-white/5 ${s.color}`}>
-              <s.icon className="w-5 h-5" />
+            <div className={`p-2.5 sm:p-3 rounded-lg bg-white/5 ${s.color} shrink-0`}>
+              <s.icon className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <p className="text-2xl font-bold">{s.value}</p>
-              <p className="text-sm text-muted">{s.label}</p>
+            <div className="min-w-0">
+              <p className="text-xl sm:text-2xl font-bold tabular-nums">{s.value}</p>
+              <p className="text-xs sm:text-sm text-muted leading-tight">{s.label}</p>
             </div>
           </div>
         ))}
@@ -94,7 +94,7 @@ export default function DashboardPage() {
       <AiBriefWidget />
 
       <div>
-        <h2 className="text-xl font-semibold mb-4">Проекты</h2>
+        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Проекты</h2>
         {projects.length === 0 ? (
           <div className="bg-card border border-border rounded-xl p-12 text-center">
             <FolderKanban className="w-12 h-12 text-muted mx-auto mb-3" />

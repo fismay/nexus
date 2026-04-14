@@ -47,9 +47,14 @@ export function CommandPalette() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
-      <div className="relative w-full max-w-lg bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[max(1rem,env(safe-area-inset-top))] sm:pt-[12vh] px-3 pb-[env(safe-area-inset-bottom)]">
+      <button
+        type="button"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+        aria-label="Закрыть"
+        onClick={() => setOpen(false)}
+      />
+      <div className="relative z-[101] w-full max-w-lg max-h-[min(85dvh,32rem)] mt-2 sm:mt-0 bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         <Command
           label="Command Palette"
           filter={(value, search) => {
@@ -68,7 +73,7 @@ export function CommandPalette() {
             <kbd className="text-[10px] text-muted bg-white/5 px-1.5 py-0.5 rounded">ESC</kbd>
           </div>
 
-          <Command.List className="max-h-80 overflow-y-auto p-2">
+          <Command.List className="max-h-[min(60dvh,20rem)] sm:max-h-80 overflow-y-auto p-2 overscroll-contain">
             <Command.Empty className="py-6 text-center text-sm text-muted">
               Ничего не найдено
             </Command.Empty>

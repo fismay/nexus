@@ -118,39 +118,45 @@ export default function CalendarPage() {
   })}`;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Календарь</h1>
-          <p className="text-muted mt-1">Расписание и события</p>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Календарь</h1>
+          <p className="text-muted mt-1 text-sm sm:text-base">Расписание и события</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-stretch gap-2 sm:justify-end sm:max-w-[min(100%,42rem)]">
           <button
+            type="button"
             onClick={() => setShowIcalImport(true)}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 sm:px-4 py-2.5 min-h-11 rounded-xl text-xs sm:text-sm font-medium transition-colors"
           >
-            <Upload className="w-4 h-4" />
-            Импорт из вуза
+            <Upload className="w-4 h-4 shrink-0" />
+            <span className="hidden min-[400px]:inline">Импорт</span>
+            <span className="min-[400px]:hidden">Вуз</span>
           </button>
           <a
             href="/calendar/daily"
-            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-foreground px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/5 hover:bg-white/10 text-foreground px-3 sm:px-4 py-2.5 min-h-11 rounded-xl text-xs sm:text-sm font-medium transition-colors"
           >
-            <CalendarDays className="w-4 h-4" />
-            Daily / Timeline
+            <CalendarDays className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Daily / Timeline</span>
+            <span className="sm:hidden">День</span>
           </a>
           <button
+            type="button"
             onClick={() => setShowWorkBlock(true)}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-2.5 min-h-11 rounded-xl text-xs sm:text-sm font-medium transition-colors"
           >
-            <Clock className="w-4 h-4" />
-            Блок работы
+            <Clock className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Блок работы</span>
+            <span className="sm:hidden">Блок</span>
           </button>
           <button
+            type="button"
             onClick={() => setShowEventCreate(true)}
-            className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-accent hover:bg-accent-hover text-white px-3 sm:px-4 py-2.5 min-h-11 rounded-xl text-xs sm:text-sm font-medium transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 shrink-0" />
             Событие
           </button>
         </div>
@@ -185,8 +191,8 @@ export default function CalendarPage() {
           <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-xl overflow-x-auto">
-          <table className="w-full border-collapse" style={{ minWidth: 700, tableLayout: "fixed" }}>
+        <div className="bg-card border border-border rounded-xl overflow-x-auto -mx-1 sm:mx-0 touch-pan-x">
+          <table className="w-full border-collapse" style={{ minWidth: "min(100%, 700px)", tableLayout: "fixed" }}>
             <colgroup>
               <col style={{ width: 44 }} />
               {weekDays.map((_, i) => <col key={i} />)}

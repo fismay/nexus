@@ -1,16 +1,34 @@
 "use client";
 
-import { useRef, useEffect, useMemo, useCallback } from "react";
+import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import { BookOpen, FlaskConical, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CalendarEvent, Task } from "@/lib/types";
 import { PRIORITY_COLORS, SMART_TAG_LABELS } from "@/lib/types";
 
-const HOUR_WIDTH = 200;
-const LANE_HEIGHT = 56;
+const LANE_HEIGHT = 52;
 const LANE_GAP = 4;
 const START_HOUR = 7;
 const END_HOUR = 23;
 const TOTAL_HOURS = END_HOUR - START_HOUR;
+
+function useResponsiveHourWidth(): number {
+  const [hourWidth, setHourWidth] = useState(120);
+
+  useEffect(() => {
+    const update = () => {
+      const w = typeof window !== "undefined" ? window.innerWidth : 1024;
+      if (w >= 1280) setHourWidth(200);
+      else if (w >= 1024) setHourWidth(160);
+      else if (w >= 640) setHourWidth(130);
+      else setHourWidth(100);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return hourWidth;
+}
 
 interface TimelineBlock {
   id: string;
@@ -72,6 +90,7 @@ interface Props {
 }
 
 export function TimelineContainer({ events, tasks, date }: Props) {
+  const HOUR_WIDTH = useResponsiveHourWidth();
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, scrollLeft: 0 });
@@ -112,9 +131,8 @@ export function TimelineContainer({ events, tasks, date }: Props) {
     const isSameDay = now.toDateString() === date.toDateString();
     const targetHour = isSameDay ? Math.max(now.getHours() - 1, START_HOUR) : 8;
     scrollRef.current.scrollLeft = (targetHour - START_HOUR) * HOUR_WIDTH;
-  }, [date]);
+  }, [date, HOUR_WIDTH]);
 
-  // Native wheel listener with { passive: false } so preventDefault works
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -153,45 +171,45 @@ export function TimelineContainer({ events, tasks, date }: Props) {
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      {/* Scroll arrow buttons */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-border bg-card">
+    <div className="bg-card border border-border rounded-xl overflow-hidden touch-pan-x">
+      <div className="flex items-center justify-between px-2 sm:px-3 py-1.5 border-b border-border bg-card gap-2">
         <button
+          type="button"
           onClick={() => scrollBy(-1)}
-          className="p-1 rounded hover:bg-white/10 text-muted hover:text-foreground transition-colors"
+          className="p-2 min-h-10 min-w-10 rounded-lg hover:bg-white/10 text-muted hover:text-foreground transition-colors shrink-0"
           title="Скролл влево"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="text-[10px] text-muted">
-          {START_HOUR}:00 — {END_HOUR}:00 · Перетаскивайте или используйте колёсико
+        <span className="text-[9px] sm:text-[10px] text-muted text-center leading-tight flex-1 min-w-0">
+          <span className="hidden sm:inline">{START_HOUR}:00 — {END_HOUR}:00 · Свайп или колёсико</span>
+          <span className="sm:hidden">Свайп влево/вправо</span>
         </span>
         <button
+          type="button"
           onClick={() => scrollBy(1)}
-          className="p-1 rounded hover:bg-white/10 text-muted hover:text-foreground transition-colors"
+          className="p-2 min-h-10 min-w-10 rounded-lg hover:bg-white/10 text-muted hover:text-foreground transition-colors shrink-0"
           title="Скролл вправо"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Single scrollable area: header + body */}
       <div
         ref={scrollRef}
-        className="overflow-x-auto overflow-y-hidden select-none"
-        style={{ cursor: "grab" }}
+        className="overflow-x-auto overflow-y-hidden select-none overscroll-x-contain"
+        style={{ cursor: "grab", WebkitOverflowScrolling: "touch" }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
         <div style={{ width: `${totalWidth}px` }}>
-          {/* Hour labels */}
           <div className="flex border-b border-border/50" style={{ height: 28 }}>
             {Array.from({ length: TOTAL_HOURS }, (_, i) => (
               <div
                 key={i}
-                className="flex-shrink-0 border-r border-border/30 text-[11px] text-muted flex items-center pl-2 font-mono"
+                className="flex-shrink-0 border-r border-border/30 text-[10px] sm:text-[11px] text-muted flex items-center pl-1.5 sm:pl-2 font-mono"
                 style={{ width: HOUR_WIDTH }}
               >
                 {(START_HOUR + i).toString().padStart(2, "0")}:00
@@ -199,18 +217,14 @@ export function TimelineContainer({ events, tasks, date }: Props) {
             ))}
           </div>
 
-          {/* Blocks area */}
           <div className="relative" style={{ height: Math.max(80, bodyHeight) }}>
-            {/* Hour gridlines */}
             {Array.from({ length: TOTAL_HOURS + 1 }, (_, i) => (
               <div key={`g${i}`} className="absolute top-0 bottom-0 border-l border-border/30" style={{ left: i * HOUR_WIDTH }} />
             ))}
-            {/* Half-hour lines */}
             {Array.from({ length: TOTAL_HOURS }, (_, i) => (
               <div key={`h${i}`} className="absolute top-0 bottom-0 border-l border-dashed border-border/15" style={{ left: i * HOUR_WIDTH + HOUR_WIDTH / 2 }} />
             ))}
 
-            {/* Now line */}
             {(() => {
               const now = new Date();
               if (now.toDateString() !== date.toDateString()) return null;
@@ -223,10 +237,9 @@ export function TimelineContainer({ events, tasks, date }: Props) {
               );
             })()}
 
-            {/* Event/Task blocks */}
             {blocks.map((b) => {
               const leftPx = ((b.startMin - START_HOUR * 60) / 60) * HOUR_WIDTH;
-              const widthPx = Math.max(48, ((b.endMin - b.startMin) / 60) * HOUR_WIDTH);
+              const widthPx = Math.max(40, ((b.endMin - b.startMin) / 60) * HOUR_WIDTH);
               const topPx = LANE_GAP + b.lane * (LANE_HEIGHT + LANE_GAP);
               const colors = getBlockColor(b);
               return (
@@ -238,20 +251,20 @@ export function TimelineContainer({ events, tasks, date }: Props) {
                   style={{ left: leftPx, top: topPx, width: widthPx, height: LANE_HEIGHT }}
                   title={[b.title, b.location ? `📍 ${b.location}` : "", `${fmtTime(b.startMin)} – ${fmtTime(b.endMin)}`, b.smartTag ? SMART_TAG_LABELS[b.smartTag] : ""].filter(Boolean).join("\n")}
                 >
-                  <div className="px-2 py-1.5 h-full flex flex-col justify-center min-w-0">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      {b.smartTag === "@theory" && <BookOpen className="w-3 h-3 flex-shrink-0 text-blue-300" />}
-                      {b.smartTag === "@practice" && <FlaskConical className="w-3 h-3 flex-shrink-0 text-amber-300" />}
-                      {b.kind === "task" && b.priority && <span className={`text-[10px] ${PRIORITY_COLORS[b.priority]}`}>●</span>}
-                      <span className="text-xs font-semibold truncate">{b.title}</span>
+                  <div className="px-1.5 sm:px-2 py-1 sm:py-1.5 h-full flex flex-col justify-center min-w-0">
+                    <div className="flex items-center gap-1 min-w-0">
+                      {b.smartTag === "@theory" && <BookOpen className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0 text-blue-300" />}
+                      {b.smartTag === "@practice" && <FlaskConical className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0 text-amber-300" />}
+                      {b.kind === "task" && b.priority && <span className={`text-[9px] sm:text-[10px] ${PRIORITY_COLORS[b.priority]}`}>●</span>}
+                      <span className="text-[10px] sm:text-xs font-semibold truncate">{b.title}</span>
                     </div>
                     {b.location && (
-                      <div className="flex items-center gap-1 mt-0.5 min-w-0">
-                        <MapPin className="w-2.5 h-2.5 text-muted flex-shrink-0" />
-                        <span className="text-[10px] text-muted truncate">{b.location}</span>
+                      <div className="flex items-center gap-0.5 mt-0.5 min-w-0">
+                        <MapPin className="w-2 h-2 text-muted flex-shrink-0" />
+                        <span className="text-[9px] text-muted truncate">{b.location}</span>
                       </div>
                     )}
-                    <div className="text-[10px] text-muted/60 mt-auto">
+                    <div className="text-[9px] sm:text-[10px] text-muted/60 mt-auto hidden sm:block">
                       {fmtTime(b.startMin)} – {fmtTime(b.endMin)}
                     </div>
                   </div>
@@ -260,7 +273,7 @@ export function TimelineContainer({ events, tasks, date }: Props) {
             })}
 
             {blocks.length === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center text-sm text-muted">
+              <div className="absolute inset-0 flex items-center justify-center text-xs sm:text-sm text-muted px-4 text-center">
                 Нет событий на этот день
               </div>
             )}
@@ -268,8 +281,7 @@ export function TimelineContainer({ events, tasks, date }: Props) {
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center gap-4 px-4 py-2 border-t border-border text-[10px] text-muted flex-wrap">
+      <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2 border-t border-border text-[9px] sm:text-[10px] text-muted flex-wrap">
         <span className="flex items-center gap-1.5">
           <span className="w-4 h-3 border-l-[3px] border-dashed border-blue-400 bg-blue-500/20 rounded-r" />
           iCal
