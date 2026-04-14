@@ -19,9 +19,17 @@ import { WorkBlockModal } from "@/components/work-block-modal";
 import { EventCreateModal } from "@/components/event-create-modal";
 import { ICalImportModal } from "@/components/ical-import-modal";
 
-const HOURS = Array.from({ length: 16 }, (_, i) => i + 7);
+const FIRST_HOUR = 7;
+const HOURS = Array.from({ length: 16 }, (_, i) => i + FIRST_HOUR);
+const PX_PER_HOUR = 36;
+const GRID_HEIGHT_PX = HOURS.length * PX_PER_HOUR;
 
 const DAY_NAMES = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+/** Минуты от начала сетки (FIRST_HOUR:00) для локального времени браузера */
+function minutesFromGridStart(d: Date, firstHour: number) {
+  return (d.getHours() - firstHour) * 60 + d.getMinutes();
+}
 
 function getWeekStart(d: Date): Date {
   const date = new Date(d);
@@ -226,61 +234,119 @@ export default function CalendarPage() {
               </tr>
             </thead>
             <tbody>
-              {HOURS.map((hour) => (
-                <tr key={hour}>
-                  <td className="text-[10px] text-muted text-right pr-1 py-2 border-t border-border align-top">
-                    {hour.toString().padStart(2, "0")}
-                  </td>
-                  {weekDays.map((day, di) => {
-                    const dayEvents = getEventsForDay(day).filter((e) => {
-                      const h = new Date(e.start_time).getHours();
-                      return h === hour;
-                    });
-                    return (
-                      <td
-                        key={di}
-                        className={`border-l border-t border-border p-px align-top ${
-                          isSameDay(day, today) ? "bg-accent/5" : ""
-                        }`}
-                        style={{ height: 36 }}
+              <tr>
+                <td className="w-[44px] align-top p-0">
+                  <div
+                    className="flex flex-col border-r border-border/80"
+                    style={{ height: GRID_HEIGHT_PX }}
+                  >
+                    {HOURS.map((hour) => (
+                      <div
+                        key={hour}
+                        className="box-border flex flex-shrink-0 items-start justify-end border-t border-border/70 pr-1 pt-0.5 text-[10px] text-muted first:border-t-0"
+                        style={{ height: PX_PER_HOUR, minHeight: PX_PER_HOUR }}
                       >
-                        {dayEvents.map((ev) => {
-                          const start = new Date(ev.start_time);
-                          const end = new Date(ev.end_time);
-                          const durationMin = (end.getTime() - start.getTime()) / 60000;
-                          const heightPx = Math.max(18, (durationMin / 60) * 36);
-                          const colors = getEventColor(ev);
-                          return (
+                        {hour.toString().padStart(2, "0")}
+                      </div>
+                    ))}
+                  </div>
+                </td>
+                {weekDays.map((day, di) => {
+                  const isTodayCol = isSameDay(day, today);
+                  const dayEvents = getEventsForDay(day);
+                  return (
+                    <td
+                      key={di}
+                      className={`relative border-l border-border p-0 align-top ${
+                        isTodayCol ? "bg-accent/5" : ""
+                      }`}
+                    >
+                      <div
+                        className="relative"
+                        style={{ height: GRID_HEIGHT_PX }}
+                      >
+                        <div className="pointer-events-none absolute inset-0 flex flex-col">
+                          {HOURS.map((hour) => (
                             <div
-                              key={`${ev.id}-${start.toISOString()}`}
-                              className={`${colors} ${ev.ical_uid ? "border-l-2 border-dashed" : "border-l-[1.5px]"} rounded-r px-1 py-px text-[10px] leading-tight cursor-default overflow-hidden`}
-                              style={{ height: Math.max(22, heightPx) }}
-                              title={[
-                                ev.title,
-                                ev.location ? `📍 ${ev.location}` : "",
-                                `${start.toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"})} – ${end.toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"})}`,
-                                ev.smart_tag === "@theory" ? "📖 Лекция" : ev.smart_tag === "@practice" ? "🔬 Практика" : "",
-                              ].filter(Boolean).join("\n")}
-                            >
-                              <div className="flex items-center gap-0.5 truncate">
-                                {ev.smart_tag === "@theory" && <BookOpen className="w-2.5 h-2.5 flex-shrink-0" />}
-                                {ev.smart_tag === "@practice" && <FlaskConical className="w-2.5 h-2.5 flex-shrink-0" />}
-                                <span className="truncate">{ev.title}</span>
-                              </div>
-                              {heightPx > 24 && ev.location && (
-                                <div className="flex items-center gap-0.5 text-[9px] opacity-70 truncate">
-                                  <MapPin className="w-2 h-2" />
-                                  {ev.location}
+                              key={hour}
+                              className="box-border flex-shrink-0 border-t border-border/70 first:border-t-0"
+                              style={{ height: PX_PER_HOUR, minHeight: PX_PER_HOUR }}
+                            />
+                          ))}
+                        </div>
+                        <div className="absolute inset-0 z-[1] px-0.5">
+                          {dayEvents.map((ev) => {
+                            const start = new Date(ev.start_time);
+                            const end = new Date(ev.end_time);
+                            let topMin = minutesFromGridStart(start, FIRST_HOUR);
+                            let endMin = minutesFromGridStart(end, FIRST_HOUR);
+                            if (endMin <= topMin) {
+                              endMin = topMin + 15;
+                            }
+                            topMin = Math.max(0, topMin);
+                            endMin = Math.min(
+                              HOURS.length * 60,
+                              Math.max(endMin, topMin + 5)
+                            );
+                            const spanMin = endMin - topMin;
+                            let topPx = (topMin / 60) * PX_PER_HOUR;
+                            let heightPx = Math.max(
+                              (spanMin / 60) * PX_PER_HOUR,
+                              18
+                            );
+                            if (topPx >= GRID_HEIGHT_PX) return null;
+                            if (topPx + heightPx > GRID_HEIGHT_PX) {
+                              heightPx = Math.max(GRID_HEIGHT_PX - topPx, 18);
+                            }
+                            const colors = getEventColor(ev);
+                            return (
+                              <div
+                                key={`${ev.id}-${start.toISOString()}`}
+                                className={`absolute left-0.5 right-0.5 ${colors} ${
+                                  ev.ical_uid
+                                    ? "border-l-2 border-dashed"
+                                    : "border-l-[1.5px]"
+                                } rounded-r px-1 py-px text-[10px] leading-tight overflow-hidden`}
+                                style={{ top: topPx, height: heightPx }}
+                                title={[
+                                  ev.title,
+                                  ev.location ? `📍 ${ev.location}` : "",
+                                  `${start.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })} – ${end.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}`,
+                                  ev.smart_tag === "@theory"
+                                    ? "📖 Лекция"
+                                    : ev.smart_tag === "@practice"
+                                      ? "🔬 Практика"
+                                      : "",
+                                ]
+                                  .filter(Boolean)
+                                  .join("\n")}
+                              >
+                                <div className="flex min-h-0 items-start gap-0.5">
+                                  {ev.smart_tag === "@theory" && (
+                                    <BookOpen className="w-2.5 h-2.5 flex-shrink-0" />
+                                  )}
+                                  {ev.smart_tag === "@practice" && (
+                                    <FlaskConical className="w-2.5 h-2.5 flex-shrink-0" />
+                                  )}
+                                  <span className="line-clamp-3 break-words">
+                                    {ev.title}
+                                  </span>
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
+                                {heightPx > 28 && ev.location && (
+                                  <div className="mt-0.5 flex items-center gap-0.5 truncate text-[9px] opacity-70">
+                                    <MapPin className="w-2 h-2 flex-shrink-0" />
+                                    <span className="truncate">{ev.location}</span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
             </tbody>
           </table>
         </div>

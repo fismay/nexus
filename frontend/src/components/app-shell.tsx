@@ -15,14 +15,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <ContextTagProvider>
         <FocusProvider>
-          <div className="relative flex min-h-0 w-full flex-1 flex-col bg-background lg:flex-row">
+          <div className="relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-background lg:flex-row">
             <AmbientBackground />
             <div className="relative z-20 hidden w-0 shrink-0 lg:block lg:w-64">
               <Sidebar />
             </div>
             <MobileNav />
-            <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain mobile-main-offset lg:py-8 lg:pb-8 safe-area-x">
-              <div className="nexus-page mx-auto w-full max-w-[90rem] px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 pb-1 sm:pb-2">
+            <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain mobile-main-offset safe-area-x lg:py-6 lg:pb-10">
+              <div className="nexus-page mx-auto w-full max-w-[90rem] px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-6 pt-3 sm:px-5 sm:pb-8 sm:pt-4 md:px-7 md:pt-5 lg:px-10 lg:pb-12 lg:pt-2 xl:px-14">
                 <PageTransition>{children}</PageTransition>
               </div>
             </main>

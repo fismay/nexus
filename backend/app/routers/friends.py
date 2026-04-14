@@ -1,5 +1,6 @@
 from uuid import UUID
-from datetime import datetime, timedelta, timezone
+from datetime import date as Date, datetime, timedelta
+from zoneinfo import ZoneInfo
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +17,9 @@ from app.services.auth import require_user
 from app.services.ical_parser import expand_recurring_events
 
 router = APIRouter(prefix="/friends", tags=["friends"])
+
+# Границы «дня» для совместного расписания — локальный календарный день (пары из вуза в MSK).
+CALENDAR_TZ = ZoneInfo("Europe/Moscow")
 
 
 def _merge_intervals(
@@ -212,22 +216,21 @@ async def shared_schedule(
     как в GET /events. Интервалы занятости объединяются (union), затем
     ищутся окна, свободные для обоих в пределах 06:00–23:00 локального дня.
     """
-    day_start = datetime.fromisoformat(f"{date}T00:00:00+00:00")
-    if day_start.tzinfo is None:
-        day_start = day_start.replace(tzinfo=timezone.utc)
+    try:
+        d = Date.fromisoformat(date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date, use YYYY-MM-DD")
+
+    day_start = datetime(d.year, d.month, d.day, 0, 0, 0, tzinfo=CALENDAR_TZ)
     day_end = day_start + timedelta(days=1)
 
-    # Полоса, в которой считаем занятость (весь день)
+    # Полоса, в которой считаем занятость (весь локальный день)
     clip_start = day_start
     clip_end = day_end
 
     # Окно для «взаимных свободных слотов» (как типичный учебный день)
     window_start = day_start.replace(hour=6, minute=0, second=0, microsecond=0)
     window_end = day_start.replace(hour=23, minute=0, second=0, microsecond=0)
-    if window_start.tzinfo is None:
-        window_start = window_start.replace(tzinfo=day_start.tzinfo)
-    if window_end.tzinfo is None:
-        window_end = window_end.replace(tzinfo=day_start.tzinfo)
 
     my_busy, my_events, my_tasks = await _busy_intervals_for_user(
         db, user.id, day_start, day_end, clip_start, clip_end

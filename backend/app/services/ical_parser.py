@@ -24,6 +24,16 @@ iCal Import & Smart Tagging
 
 from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
+
+
+def _intervals_overlap(
+    start_a: datetime,
+    end_a: datetime,
+    range_start: datetime,
+    range_end: datetime,
+) -> bool:
+    """Пересечение [start_a, end_a) с [range_start, range_end)."""
+    return start_a < range_end and end_a > range_start
 from icalendar import Calendar
 from dateutil.rrule import rrulestr
 
@@ -172,7 +182,9 @@ def expand_recurring_events(
 
     for ev in events_db:
         if not ev.is_recurring or not ev.recurrence_rule:
-            if range_start <= ev.start_time <= range_end:
+            if _intervals_overlap(
+                ev.start_time, ev.end_time, range_start, range_end
+            ):
                 expanded.append(ev)
             continue
 
@@ -185,17 +197,24 @@ def expand_recurring_events(
                 ignoretz=True,
             )
         except Exception:
-            if range_start <= ev.start_time <= range_end:
+            if _intervals_overlap(
+                ev.start_time, ev.end_time, range_start, range_end
+            ):
                 expanded.append(ev)
             continue
 
-        for occ_start_naive in rule.between(
-            range_start.replace(tzinfo=None),
-            range_end.replace(tzinfo=None),
-            inc=True,
-        ):
-            occ_start = occ_start_naive.replace(tzinfo=ev.start_time.tzinfo)
+        ev_tz = ev.start_time.tzinfo or UTC
+        rs_local = range_start.astimezone(ev_tz).replace(tzinfo=None)
+        re_local = range_end.astimezone(ev_tz).replace(tzinfo=None)
+
+        for occ_start_naive in rule.between(rs_local, re_local, inc=True):
+            occ_start = occ_start_naive.replace(tzinfo=ev_tz)
             occ_end = occ_start + duration
+
+            if not _intervals_overlap(
+                occ_start, occ_end, range_start, range_end
+            ):
+                continue
 
             expanded.append(
                 type("VirtualEvent", (), {
