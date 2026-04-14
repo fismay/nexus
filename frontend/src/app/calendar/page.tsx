@@ -191,8 +191,8 @@ export default function CalendarPage() {
           <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-xl overflow-x-auto -mx-1 sm:mx-0 touch-pan-x">
-          <table className="w-full border-collapse" style={{ minWidth: "min(100%, 700px)", tableLayout: "fixed" }}>
+        <div className="bg-card border border-border rounded-xl overflow-x-auto touch-pan-x">
+          <table className="w-full border-collapse" style={{ minWidth: 700, tableLayout: "fixed" }}>
             <colgroup>
               <col style={{ width: 44 }} />
               {weekDays.map((_, i) => <col key={i} />)}

@@ -65,12 +65,13 @@ export default function FriendsPage() {
   );
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="mx-auto max-w-3xl space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <Users className="w-8 h-8 text-accent" />
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
+          <Users className="w-7 h-7 sm:w-8 sm:h-8 text-accent shrink-0" />
           Друзья
         </h1>
+        <p className="text-muted text-sm sm:text-base mt-1">Совместное расписание учитывает пары из календаря и ваши запланированные задачи.</p>
       </div>
 
       {/* Search users */}
@@ -168,23 +169,86 @@ export default function FriendsPage() {
             </button>
           </div>
           {sharedData && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <h4 className="text-xs text-muted font-medium mb-1">Мои события</h4>
-                  {((sharedData.my_events as Array<Record<string, unknown>>) || []).map((e, i) => (
-                    <div key={i} className="text-xs bg-blue-500/10 rounded px-2 py-1 mb-1 border-l-2 border-blue-500">
-                      {e.title as string}
-                    </div>
-                  ))}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="min-w-0">
+                  <h4 className="text-xs text-muted font-medium mb-1.5">Мои события (включая пары)</h4>
+                  {((sharedData.my_events as Array<Record<string, unknown>>) || []).length === 0 ? (
+                    <p className="text-xs text-muted/80">Нет событий</p>
+                  ) : (
+                    ((sharedData.my_events as Array<Record<string, unknown>>) || []).map((e, i) => (
+                      <div key={i} className="text-xs bg-blue-500/10 rounded-lg px-2.5 py-1.5 mb-1.5 border-l-2 border-blue-500 break-words">
+                        <span className="font-medium">{e.title as string}</span>
+                        {Boolean(e.start_time) && Boolean(e.end_time) ? (
+                          <span className="block text-[10px] text-muted mt-0.5">
+                            {new Date(String(e.start_time)).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                            {" – "}
+                            {new Date(String(e.end_time)).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        ) : null}
+                      </div>
+                    ))
+                  )}
                 </div>
-                <div>
-                  <h4 className="text-xs text-muted font-medium mb-1">События друга</h4>
-                  {((sharedData.friend_events as Array<Record<string, unknown>>) || []).map((e, i) => (
-                    <div key={i} className="text-xs bg-purple-500/10 rounded px-2 py-1 mb-1 border-l-2 border-purple-500">
-                      {e.title as string}
-                    </div>
-                  ))}
+                <div className="min-w-0">
+                  <h4 className="text-xs text-muted font-medium mb-1.5">События друга</h4>
+                  {((sharedData.friend_events as Array<Record<string, unknown>>) || []).length === 0 ? (
+                    <p className="text-xs text-muted/80">Нет событий</p>
+                  ) : (
+                    ((sharedData.friend_events as Array<Record<string, unknown>>) || []).map((e, i) => (
+                      <div key={i} className="text-xs bg-purple-500/10 rounded-lg px-2.5 py-1.5 mb-1.5 border-l-2 border-purple-500 break-words">
+                        <span className="font-medium">{e.title as string}</span>
+                        {Boolean(e.start_time) && Boolean(e.end_time) ? (
+                          <span className="block text-[10px] text-muted mt-0.5">
+                            {new Date(String(e.start_time)).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                            {" – "}
+                            {new Date(String(e.end_time)).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        ) : null}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="min-w-0">
+                  <h4 className="text-xs text-amber-400/90 font-medium mb-1.5">Мои задачи в календаре</h4>
+                  {((sharedData.my_scheduled_tasks as Array<Record<string, unknown>>) || []).length === 0 ? (
+                    <p className="text-xs text-muted/80">Нет запланированных задач</p>
+                  ) : (
+                    ((sharedData.my_scheduled_tasks as Array<Record<string, unknown>>) || []).map((t, i) => (
+                      <div key={i} className="text-xs bg-amber-500/10 rounded-lg px-2.5 py-1.5 mb-1.5 border-l-2 border-amber-500 break-words">
+                        {t.title as string}
+                        {Boolean(t.start_time) && Boolean(t.end_time) ? (
+                          <span className="block text-[10px] text-muted mt-0.5">
+                            {new Date(String(t.start_time)).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                            {" – "}
+                            {new Date(String(t.end_time)).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        ) : null}
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-xs text-amber-400/90 font-medium mb-1.5">Задачи друга в календаре</h4>
+                  {((sharedData.friend_scheduled_tasks as Array<Record<string, unknown>>) || []).length === 0 ? (
+                    <p className="text-xs text-muted/80">Нет запланированных задач</p>
+                  ) : (
+                    ((sharedData.friend_scheduled_tasks as Array<Record<string, unknown>>) || []).map((t, i) => (
+                      <div key={i} className="text-xs bg-amber-500/10 rounded-lg px-2.5 py-1.5 mb-1.5 border-l-2 border-amber-500 break-words">
+                        {t.title as string}
+                        {Boolean(t.start_time) && Boolean(t.end_time) ? (
+                          <span className="block text-[10px] text-muted mt-0.5">
+                            {new Date(String(t.start_time)).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                            {" – "}
+                            {new Date(String(t.end_time)).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        ) : null}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
               {((sharedData.conflicts as Array<Record<string, unknown>>) || []).length > 0 && (

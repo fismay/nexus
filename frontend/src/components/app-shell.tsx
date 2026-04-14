@@ -13,17 +13,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <ContextTagProvider>
         <FocusProvider>
-          {/* Desktop sidebar */}
-          <div className="hidden lg:block">
-            <Sidebar />
+          <div className="flex min-h-0 w-full flex-1 flex-col bg-background lg:flex-row">
+            <div className="hidden shrink-0 lg:block">
+              <Sidebar />
+            </div>
+            <MobileNav />
+            <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain mobile-main-offset lg:py-8 lg:pb-8 safe-area-x">
+              <div className="nexus-page mx-auto w-full max-w-[90rem] px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 pb-1 sm:pb-2">
+                {children}
+              </div>
+            </main>
+            <FocusModeOverlay />
+            <CommandPalette />
           </div>
-          {/* Mobile navigation */}
-          <MobileNav />
-          <main className="flex-1 w-full min-w-0 lg:ml-64 mobile-main-offset lg:pt-8 lg:pb-8 px-3 sm:px-5 md:px-6 lg:px-8 overflow-y-auto min-h-[100dvh] safe-area-x">
-            {children}
-          </main>
-          <FocusModeOverlay />
-          <CommandPalette />
         </FocusProvider>
       </ContextTagProvider>
     </AuthProvider>

@@ -1,18 +1,63 @@
 from uuid import UUID
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.user import User
 from app.models.friendship import Friendship
 from app.models.event import Event
+from app.models.task import Task
 from app.schemas.friendship import FriendshipRead, FriendRequest, SharedSlot
 from app.schemas.auth import UserSearch
+from app.schemas.event import EventRead
 from app.services.auth import require_user
+from app.services.ical_parser import expand_recurring_events
 
 router = APIRouter(prefix="/friends", tags=["friends"])
+
+
+def _merge_intervals(
+    intervals: list[tuple[datetime, datetime]],
+) -> list[tuple[datetime, datetime]]:
+    if not intervals:
+        return []
+    sorted_i = sorted(intervals, key=lambda x: x[0])
+    merged: list[tuple[datetime, datetime]] = [sorted_i[0]]
+    for s, e in sorted_i[1:]:
+        ls, le = merged[-1]
+        if s <= le:
+            merged[-1] = (ls, max(le, e))
+        else:
+            merged.append((s, e))
+    return merged
+
+
+def _event_obj_to_read(ev) -> EventRead:
+    """ORM Event или виртуальное occurrence из expand_recurring_events."""
+    try:
+        return EventRead.model_validate(ev)
+    except Exception:
+        return EventRead(
+            id=getattr(ev, "id"),
+            title=getattr(ev, "title"),
+            description=getattr(ev, "description", None),
+            event_type=getattr(ev, "event_type", "class"),
+            start_time=getattr(ev, "start_time"),
+            end_time=getattr(ev, "end_time"),
+            is_recurring=getattr(ev, "is_recurring", False),
+            recurrence_rule=getattr(ev, "recurrence_rule", None),
+            color=getattr(ev, "color", None),
+            project_id=getattr(ev, "project_id", None),
+            location=getattr(ev, "location", None),
+            smart_tag=getattr(ev, "smart_tag", None),
+            week_parity=getattr(ev, "week_parity", None),
+            recurrence_interval=getattr(ev, "recurrence_interval", None),
+            ical_uid=getattr(ev, "ical_uid", None),
+            scheduling_type=getattr(ev, "scheduling_type", "fixed"),
+            created_at=getattr(ev, "created_at"),
+        )
 
 
 @router.get("/", response_model=list[FriendshipRead])
@@ -90,6 +135,68 @@ async def decline_request(
     return {"ok": True}
 
 
+async def _busy_intervals_for_user(
+    db: AsyncSession,
+    owner_id: UUID,
+    day_start: datetime,
+    day_end: datetime,
+    clip_start: datetime,
+    clip_end: datetime,
+) -> tuple[list[tuple[datetime, datetime]], list[EventRead], list[dict]]:
+    """
+    Учитывает ВСЕ события (включая повторяющиеся пары из iCal) и таймбокс-задачи.
+    Возвращает: объединённые интервалы занятости, события дня, задачи дня.
+    """
+    result = await db.execute(
+        select(Event).where(Event.owner_id == owner_id).order_by(Event.start_time)
+    )
+    all_events = result.scalars().all()
+
+    expanded = expand_recurring_events(all_events, day_start, day_end)
+
+    day_events_read: list[EventRead] = []
+    busy: list[tuple[datetime, datetime]] = []
+
+    for ev in expanded:
+        st = ev.start_time
+        et = ev.end_time
+        if et <= day_start or st >= day_end:
+            continue
+        day_events_read.append(_event_obj_to_read(ev))
+        s = max(st, clip_start)
+        t = min(et, clip_end)
+        if s < t:
+            busy.append((s, t))
+
+    t_result = await db.execute(
+        select(Task).where(
+            Task.owner_id == owner_id,
+            Task.start_time.isnot(None),
+            Task.end_time.isnot(None),
+            Task.start_time < day_end,
+            Task.end_time > day_start,
+            Task.is_completed == False,  # noqa: E712
+        )
+    )
+    tasks = t_result.scalars().all()
+    task_payload: list[dict] = []
+    for t in tasks:
+        task_payload.append({
+            "id": str(t.id),
+            "title": t.title,
+            "start_time": t.start_time.isoformat() if t.start_time else None,
+            "end_time": t.end_time.isoformat() if t.end_time else None,
+        })
+        if t.start_time and t.end_time:
+            s = max(t.start_time, clip_start)
+            e = min(t.end_time, clip_end)
+            if s < e:
+                busy.append((s, e))
+
+    merged_busy = _merge_intervals(busy)
+    return merged_busy, day_events_read, task_payload
+
+
 @router.get("/shared-schedule")
 async def shared_schedule(
     friend_id: UUID = Query(...),
@@ -98,58 +205,60 @@ async def shared_schedule(
     user: User = Depends(require_user),
 ):
     """
-    Returns both users' events for a given day + mutual free slots.
-    The overlap-detection algorithm:
-    1. Merge all events into a timeline sorted by start.
-    2. Walk through and mark occupied intervals.
-    3. Gaps between 08:00-22:00 that are free for BOTH users become mutual free slots.
+    События и таймбокс-задачи обоих пользователей за сутки,
+    пересечения занятости и общие свободные окна.
+
+    Повторяющиеся учебные события (iCal / RRULE) разворачиваются так же,
+    как в GET /events. Интервалы занятости объединяются (union), затем
+    ищутся окна, свободные для обоих в пределах 06:00–23:00 локального дня.
     """
     day_start = datetime.fromisoformat(f"{date}T00:00:00+00:00")
+    if day_start.tzinfo is None:
+        day_start = day_start.replace(tzinfo=timezone.utc)
     day_end = day_start + timedelta(days=1)
 
-    async def get_events(owner_id: UUID):
-        result = await db.execute(
-            select(Event).where(
-                Event.owner_id == owner_id,
-                Event.start_time < day_end,
-                Event.end_time > day_start,
-            ).order_by(Event.start_time)
-        )
-        return result.scalars().all()
+    # Полоса, в которой считаем занятость (весь день)
+    clip_start = day_start
+    clip_end = day_end
 
-    my_events = await get_events(user.id)
-    friend_events = await get_events(friend_id)
+    # Окно для «взаимных свободных слотов» (как типичный учебный день)
+    window_start = day_start.replace(hour=6, minute=0, second=0, microsecond=0)
+    window_end = day_start.replace(hour=23, minute=0, second=0, microsecond=0)
+    if window_start.tzinfo is None:
+        window_start = window_start.replace(tzinfo=day_start.tzinfo)
+    if window_end.tzinfo is None:
+        window_end = window_end.replace(tzinfo=day_start.tzinfo)
 
-    window_start = day_start.replace(hour=8, minute=0, second=0)
-    window_end = day_start.replace(hour=22, minute=0, second=0)
+    my_busy, my_events, my_tasks = await _busy_intervals_for_user(
+        db, user.id, day_start, day_end, clip_start, clip_end
+    )
+    friend_busy, friend_events, friend_tasks = await _busy_intervals_for_user(
+        db, friend_id, day_start, day_end, clip_start, clip_end
+    )
 
-    def get_busy(events):
-        intervals = []
-        for e in events:
-            s = max(e.start_time, window_start)
-            t = min(e.end_time, window_end)
-            if s < t:
-                intervals.append((s, t))
-        return intervals
+    # Объединение занятости обоих: свободно только там, где никто не занят
+    union_busy = _merge_intervals(
+        [(s, e) for s, e in my_busy] + [(s, e) for s, e in friend_busy]
+    )
 
-    my_busy = get_busy(my_events)
-    friend_busy = get_busy(friend_events)
-
-    # Merge all busy intervals into a single sorted list
-    all_busy = sorted(my_busy + friend_busy, key=lambda x: x[0])
-
-    # Find free gaps
-    free_slots: list[SharedSlot] = []
+    # Взаимные свободные слоты внутри window_start..window_end
+    mutual_free: list[SharedSlot] = []
     cursor = window_start
-    for start, end in all_busy:
-        if start > cursor:
-            free_slots.append(SharedSlot(start=cursor, end=start))
-        cursor = max(cursor, end)
+    for s, e in union_busy:
+        if e <= window_start:
+            continue
+        if s >= window_end:
+            break
+        cs = max(s, window_start)
+        ce = min(e, window_end)
+        if cursor < cs:
+            mutual_free.append(SharedSlot(start=cursor, end=cs))
+        cursor = max(cursor, ce)
     if cursor < window_end:
-        free_slots.append(SharedSlot(start=cursor, end=window_end))
+        mutual_free.append(SharedSlot(start=cursor, end=window_end))
 
-    # Detect overlaps between the two users
-    overlaps = []
+    # Пересечения «оба заняты одновременно»
+    overlaps: list[SharedSlot] = []
     for ms, me in my_busy:
         for fs, fe in friend_busy:
             os = max(ms, fs)
@@ -157,10 +266,11 @@ async def shared_schedule(
             if os < oe:
                 overlaps.append(SharedSlot(start=os, end=oe))
 
-    from app.schemas.event import EventRead
     return {
-        "my_events": [EventRead.model_validate(e) for e in my_events],
-        "friend_events": [EventRead.model_validate(e) for e in friend_events],
-        "mutual_free_slots": free_slots,
+        "my_events": my_events,
+        "friend_events": friend_events,
+        "my_scheduled_tasks": my_tasks,
+        "friend_scheduled_tasks": friend_tasks,
+        "mutual_free_slots": mutual_free,
         "conflicts": overlaps,
     }

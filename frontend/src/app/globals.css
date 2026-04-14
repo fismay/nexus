@@ -93,3 +93,24 @@ body {
     padding-bottom: 0;
   }
 }
+
+/* Ровные боковые поля для текстовых колонок на узких экранах */
+.nexus-page {
+  box-sizing: border-box;
+}
+
+.nexus-page h1,
+.nexus-page h2,
+.nexus-page > div > p {
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
+}
+
+@media (min-width: 640px) {
+  .nexus-page h1,
+  .nexus-page h2,
+  .nexus-page > div > p {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
