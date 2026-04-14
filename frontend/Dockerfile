@@ -7,11 +7,13 @@ RUN npm ci
 
 COPY . .
 
-ARG NEXT_PUBLIC_API_URL=http://localhost:8000/api
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+# Не задаём NEXT_PUBLIC_API_URL — в браузере используется относительный /api (прокси в app/api/[[...path]]/route.ts).
+ARG BACKEND_ORIGIN=http://backend:8000
+ENV BACKEND_ORIGIN=$BACKEND_ORIGIN
+ENV INTERNAL_API_URL=http://backend:8000/api
 
 RUN npm run build
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start"]

@@ -38,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       api.getMe().then((u) => setUser(u as unknown as User)).catch(() => {
         localStorage.removeItem("nexus_token");
         setToken(null);
+        api.setToken(null);
       }).finally(() => setLoading(false));
     } else {
       setLoading(false);

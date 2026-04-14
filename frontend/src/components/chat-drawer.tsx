@@ -6,9 +6,14 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import type { ChatMessage } from "@/lib/types";
 
-const WS_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api")
-  .replace(/\/api$/, "")
-  .replace(/^http/, "ws");
+/** WebSocket не идёт через /api; бэкенд на :8000, путь /ws/chat/... */
+function chatWsBase(): string {
+  if (typeof window !== "undefined") {
+    const proto = window.location.protocol === "https:" ? "wss" : "ws";
+    return `${proto}://${window.location.hostname}:8000`;
+  }
+  return "ws://127.0.0.1:8000";
+}
 
 interface Props {
   roomId: string;
@@ -37,7 +42,7 @@ export function ChatDrawer({ roomId, roomLabel, open, onClose }: Props) {
   useEffect(() => {
     if (!open || !roomId) return;
 
-    const ws = new WebSocket(`${WS_BASE}/ws/chat/${roomId}`);
+    const ws = new WebSocket(`${chatWsBase()}/ws/chat/${roomId}`);
     wsRef.current = ws;
 
     ws.onopen = () => setConnected(true);
