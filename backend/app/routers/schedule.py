@@ -60,10 +60,11 @@ async def confirm_import(
     created = []
 
     for ev_data in data.events:
-        if ev_data.ical_uid:
+        ical_uid = (ev_data.ical_uid or "").strip() or None
+        if ical_uid:
             existing = await db.execute(
                 select(Event).where(
-                    Event.ical_uid == ev_data.ical_uid,
+                    Event.ical_uid == ical_uid,
                     Event.owner_id == user.id,
                 ).limit(1)
             )
@@ -89,7 +90,7 @@ async def confirm_import(
             location=ev_data.location,
             smart_tag=ev_data.smart_tag,
             week_parity=ev_data.week_parity,
-            ical_uid=ev_data.ical_uid,
+            ical_uid=ical_uid,
             color=smart_color(ev_data.smart_tag),
             recurrence_interval=interval,
             owner_id=user.id,

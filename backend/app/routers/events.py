@@ -8,27 +8,12 @@ from app.database import get_db
 from app.models.event import Event
 from app.models.user import User
 from app.schemas.event import EventCreate, EventUpdate, EventRead, ConflictWarning
+from app.services.event_service import create_event_for_user, normalize_event_dict
 from app.services.ical_parser import expand_recurring_events
 from app.services.conflict_manager import find_conflict
 from app.services.auth import require_user
 
 router = APIRouter(prefix="/events", tags=["events"])
-
-
-def _normalize_optional_strings(payload: dict) -> dict:
-    """Пустые строки в optional полях дают duplicate key на UNIQUE (owner_id, ical_uid)."""
-    for key in (
-        "description",
-        "recurrence_rule",
-        "color",
-        "location",
-        "ical_uid",
-        "smart_tag",
-        "week_parity",
-    ):
-        if payload.get(key) == "":
-            payload[key] = None
-    return payload
 
 
 @router.get("/", response_model=list[EventRead])
@@ -43,10 +28,9 @@ async def list_events(
     all_events = result.scalars().all()
 
     if start and end:
-        expanded = expand_recurring_events(all_events, start, end)
-        return expanded
+        return expand_recurring_events(all_events, start, end)
 
-    return all_events
+    return list(all_events)
 
 
 @router.post("/", response_model=EventRead, status_code=status.HTTP_201_CREATED)
@@ -55,12 +39,7 @@ async def create_event(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_user),
 ):
-    payload = _normalize_optional_strings(data.model_dump())
-    event = Event(**payload, owner_id=user.id)
-    db.add(event)
-    await db.flush()
-    await db.refresh(event)
-    return event
+    return await create_event_for_user(db, user.id, data)
 
 
 @router.post("/check-conflict", response_model=ConflictWarning)
@@ -83,7 +62,8 @@ async def update_event(
     event = await db.get(Event, event_id)
     if not event or event.owner_id != user.id:
         raise HTTPException(status_code=404, detail="Event not found")
-    for field, value in data.model_dump(exclude_unset=True).items():
+    patch = normalize_event_dict(data.model_dump(exclude_unset=True))
+    for field, value in patch.items():
         setattr(event, field, value)
     await db.flush()
     await db.refresh(event)

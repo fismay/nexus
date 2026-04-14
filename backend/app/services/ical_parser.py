@@ -172,7 +172,7 @@ def expand_recurring_events(
     events_db: list,
     range_start: datetime,
     range_end: datetime,
-) -> list[dict]:
+) -> list:
     """
     Разворачивает recurring events в конкретные occurrence для диапазона дат.
     Возвращает список dict-ов (EventRead-совместимых), включая виртуальные копии.
@@ -234,6 +234,9 @@ def expand_recurring_events(
                     "smart_tag": ev.smart_tag,
                     "week_parity": ev.week_parity,
                     "recurrence_interval": ev.recurrence_interval,
+                    "scheduling_type": getattr(ev, "scheduling_type", "fixed"),
+                    "latitude": getattr(ev, "latitude", None),
+                    "longitude": getattr(ev, "longitude", None),
                 })()
             )
 
