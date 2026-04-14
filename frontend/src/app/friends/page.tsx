@@ -53,8 +53,23 @@ export default function FriendsPage() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <p className="text-muted">Войдите в аккаунт чтобы видеть друзей</p>
+      <div className="flex min-h-[50vh] items-center justify-center px-4">
+        <div className="nexus-surface nexus-surface--static max-w-md rounded-xl p-8 text-center">
+          <p className="text-muted">Войдите в аккаунт, чтобы видеть друзей</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-6 sm:space-y-8">
+        <div>
+          <div className="nexus-skeleton h-9 w-48 max-w-full mb-2" />
+          <div className="nexus-skeleton h-4 w-full max-w-lg" />
+        </div>
+        <div className="nexus-surface nexus-surface--static rounded-xl p-5 min-h-[100px]" />
+        <div className="nexus-surface nexus-surface--static rounded-xl p-5 min-h-[140px]" />
       </div>
     );
   }
@@ -67,15 +82,15 @@ export default function FriendsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
+        <h1 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold tracking-tight">
           <Users className="w-7 h-7 sm:w-8 sm:h-8 text-accent shrink-0" />
-          Друзья
+          <span className="nexus-page-title-bar">Друзья</span>
         </h1>
         <p className="text-muted text-sm sm:text-base mt-1">Совместное расписание учитывает пары из календаря и ваши запланированные задачи.</p>
       </div>
 
       {/* Search users */}
-      <div className="bg-card border border-border rounded-xl p-5">
+      <div className="nexus-surface nexus-surface--static rounded-xl p-5">
         <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
           <UserPlus className="w-4 h-4" />Найти пользователя
         </h3>
@@ -107,7 +122,7 @@ export default function FriendsPage() {
 
       {/* Pending requests */}
       {pendingIncoming.length > 0 && (
-        <div className="bg-card border border-amber-500/30 rounded-xl p-5">
+        <div className="nexus-surface nexus-surface--static rounded-xl border-amber-500/30 p-5">
           <h3 className="text-sm font-semibold mb-3">Входящие запросы</h3>
           {pendingIncoming.map((f) => (
             <div key={f.id as string} className="flex items-center justify-between bg-background rounded-lg px-3 py-2 mb-1">
@@ -126,7 +141,7 @@ export default function FriendsPage() {
       )}
 
       {/* Friends list */}
-      <div className="bg-card border border-border rounded-xl p-5">
+      <div className="nexus-surface nexus-surface--static rounded-xl p-5">
         <h3 className="text-sm font-semibold mb-3">Друзья ({acceptedFriends.length})</h3>
         {acceptedFriends.length === 0 ? (
           <p className="text-xs text-muted py-4 text-center">Пока нет друзей</p>
@@ -154,7 +169,7 @@ export default function FriendsPage() {
 
       {/* Shared schedule */}
       {selectedFriend && (
-        <div className="bg-card/80 backdrop-blur-xl border border-accent/30 rounded-xl p-5">
+        <div className="nexus-surface nexus-surface--static rounded-xl border-accent/30 p-5">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
             <CalendarDays className="w-4 h-4 text-accent" />Совместное расписание
           </h3>

@@ -87,23 +87,28 @@ export default function NexusMapPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div className="space-y-4">
+        <div className="nexus-skeleton h-10 w-64 max-w-full" />
+        <div className="nexus-surface nexus-surface--static rounded-xl min-h-[50vh] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <Network className="w-8 h-8 text-accent" />
-            NexusMap
+          <h1 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold tracking-tight">
+            <Network className="w-7 h-7 sm:w-8 sm:h-8 text-accent shrink-0" />
+            <span className="nexus-page-title-bar">NexusMap</span>
           </h1>
-          <p className="text-muted mt-1">Граф зависимостей проектов, задач и деталей</p>
+          <p className="text-muted mt-2 text-sm sm:text-base">
+            Граф зависимостей проектов, задач и деталей
+          </p>
         </div>
-        <div className="flex items-center gap-3 text-xs text-muted">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted sm:justify-end">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded" style={{ background: NODE_COLORS.project }} />Проекты
           </span>
@@ -119,7 +124,10 @@ export default function NexusMapPage() {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-xl overflow-hidden" style={{ height: "70vh" }}>
+      <div
+        className="nexus-surface nexus-surface--static overflow-hidden rounded-xl"
+        style={{ height: "70vh" }}
+      >
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -144,7 +152,7 @@ export default function NexusMapPage() {
 
       {/* Detail drawer */}
       {selected && (
-        <div className="bg-card/90 backdrop-blur-xl border border-border rounded-xl p-5">
+        <div className="nexus-surface nexus-surface--static rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold">
               {(selected.data as Record<string, unknown>)?.label as string}

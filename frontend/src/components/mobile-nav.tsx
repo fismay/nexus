@@ -37,7 +37,7 @@ export function MobileNav() {
   return (
     <>
       {/* Top bar — phone & tablet (< lg) */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between min-h-14 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[env(safe-area-inset-top,0px)] bg-card/90 backdrop-blur-xl border-b border-border lg:hidden">
+      <header className="nexus-surface nexus-surface--static fixed top-0 left-0 right-0 z-50 flex items-center justify-between min-h-14 rounded-none border-x-0 border-t-0 bg-card/85 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[env(safe-area-inset-top,0px)] lg:hidden">
         <div className="flex items-center gap-2">
           <Hexagon className="w-6 h-6 text-accent" />
           <span className="text-lg font-bold tracking-tight">Nexus</span>
@@ -53,7 +53,7 @@ export function MobileNav() {
       </header>
 
       {/* Bottom navigation — phone & tablet */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around gap-0.5 min-h-[3.75rem] pb-[env(safe-area-inset-bottom,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] pt-1 bg-card/90 backdrop-blur-xl border-t border-border lg:hidden safe-area-bottom">
+      <nav className="nexus-surface nexus-surface--static fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around gap-0.5 min-h-[3.75rem] rounded-none border-x-0 border-b-0 bg-card/85 pb-[env(safe-area-inset-bottom,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] pt-1 lg:hidden safe-area-bottom">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
@@ -80,7 +80,7 @@ export function MobileNav() {
             aria-label="Закрыть меню"
             onClick={() => setDrawerOpen(false)}
           />
-          <aside className="absolute left-0 top-0 bottom-0 w-[min(20rem,88vw)] max-w-[100vw] pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] bg-card border-r border-border flex flex-col animate-slide-in-left shadow-2xl">
+          <aside className="nexus-surface nexus-surface--static absolute left-0 top-0 bottom-0 w-[min(20rem,88vw)] max-w-[100vw] rounded-none border-y-0 border-l-0 bg-card/95 pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] flex flex-col animate-slide-in-left">
             <div className="flex items-center justify-between px-4 py-4 border-b border-border">
               <div className="flex items-center gap-2">
                 <Hexagon className="w-6 h-6 text-accent" />

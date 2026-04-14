@@ -26,7 +26,7 @@ export function Sidebar() {
   const { user, logout } = useAuth();
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-card/80 backdrop-blur-xl border-r border-border flex flex-col z-40">
+    <aside className="nexus-surface nexus-surface--static fixed left-0 top-0 h-screen w-64 flex flex-col z-40 rounded-none border-y-0 border-l-0 bg-card/75">
       <div className="flex items-center gap-3 px-6 py-5 border-b border-border">
         <Hexagon className="w-7 h-7 text-accent" />
         <span className="text-xl font-bold tracking-tight">Nexus</span>

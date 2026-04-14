@@ -98,9 +98,25 @@ export default function ProjectDetailPage() {
     load();
   };
 
-  if (loading || !project) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="space-y-6 max-w-5xl">
+        <div className="flex items-center gap-3">
+          <div className="nexus-skeleton h-10 w-10 rounded-lg" />
+          <div className="flex-1 space-y-2">
+            <div className="nexus-skeleton h-8 w-[min(100%,24rem)]" />
+            <div className="nexus-skeleton h-4 w-64 max-w-full" />
+          </div>
+        </div>
+        <div className="nexus-surface nexus-surface--static rounded-xl p-5 min-h-[100px]" />
+        <div className="nexus-surface nexus-surface--static rounded-xl p-5 min-h-[200px]" />
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="flex items-center justify-center py-24">
         <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -126,7 +142,7 @@ export default function ProjectDetailPage() {
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <TypeIcon className="w-5 h-5 text-accent" />
-            <h1 className="text-2xl font-bold">{project.title}</h1>
+            <h1 className="nexus-page-title-bar text-2xl font-bold">{project.title}</h1>
             <span
               className={`text-xs px-2 py-0.5 rounded-full ${
                 PROJECT_TYPE_COLORS[project.project_type] || "bg-gray-500/20 text-gray-400"
@@ -142,7 +158,7 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Top bar: status + links */}
-      <div className="bg-card border border-border rounded-xl p-5">
+      <div className="nexus-surface nexus-surface--static rounded-xl p-5">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
             {editingStatus ? (
@@ -215,7 +231,7 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
+      <div className="flex items-center gap-1 nexus-surface nexus-surface--static rounded-xl p-1">
         <button
           onClick={() => setActiveTab("overview")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -237,14 +253,14 @@ export default function ProjectDetailPage() {
       </div>
 
       {activeTab === "vault" ? (
-        <div className="bg-card border border-border rounded-xl p-5">
+        <div className="nexus-surface nexus-surface--static rounded-xl p-5">
           <PromptVault projectId={projectId} />
         </div>
       ) : (
         <>
           {/* Dynamic Workspace: type-specific widgets */}
           {project.project_type === "music" && (
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className="nexus-surface nexus-surface--static rounded-xl p-5">
               <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
                 <Music className="w-5 h-5 text-pink-400" />
                 Музыка
@@ -275,7 +291,7 @@ export default function ProjectDetailPage() {
           )}
 
           {project.project_type === "dev" && (
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className="nexus-surface nexus-surface--static rounded-xl p-5">
               <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
                 <Code className="w-5 h-5 text-cyan-400" />
                 Разработка
@@ -317,7 +333,7 @@ export default function ProjectDetailPage() {
           )}
 
           {project.project_type === "business" && (
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className="nexus-surface nexus-surface--static rounded-xl p-5">
               <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
                 <Briefcase className="w-5 h-5 text-emerald-400" />
                 Бизнес
@@ -358,7 +374,7 @@ export default function ProjectDetailPage() {
           )}
 
           {/* Phases */}
-          <div className="bg-card border border-border rounded-xl p-5">
+          <div className="nexus-surface nexus-surface--static rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Фазы проекта</h2>
               <button
@@ -403,7 +419,7 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Tasks + Hardware Blockers */}
-          <div className="bg-card border border-border rounded-xl p-5">
+          <div className="nexus-surface nexus-surface--static rounded-xl p-5">
             <h2 className="text-lg font-semibold mb-4">Задачи проекта</h2>
             {project.tasks.length === 0 ? (
               <p className="text-muted text-sm">Нет привязанных задач</p>
@@ -468,7 +484,7 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* BOM Table */}
-          <div className="bg-card border border-border rounded-xl p-5">
+          <div className="nexus-surface nexus-surface--static rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold">Спецификация (BOM)</h2>

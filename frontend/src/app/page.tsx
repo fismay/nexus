@@ -60,8 +60,21 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-6 sm:space-y-8">
+        <div>
+          <div className="nexus-skeleton h-8 w-48 max-w-full mb-2" />
+          <div className="nexus-skeleton h-4 w-64 max-w-full" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="nexus-surface nexus-surface--static rounded-xl p-4 sm:p-5 min-h-[4.5rem]">
+              <div className="nexus-skeleton h-10 w-10 rounded-lg mb-3" />
+              <div className="nexus-skeleton h-6 w-16 mb-2" />
+              <div className="nexus-skeleton h-3 w-24" />
+            </div>
+          ))}
+        </div>
+        <div className="nexus-surface nexus-surface--static rounded-xl p-8 min-h-[8rem]" />
       </div>
     );
   }
@@ -69,15 +82,17 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Дашборд</h1>
-        <p className="text-muted mt-1 text-sm sm:text-base">Обзор проектов и задач</p>
+        <h1 className="nexus-page-title-bar text-2xl sm:text-3xl font-bold tracking-tight">
+          Дашборд
+        </h1>
+        <p className="text-muted mt-2 text-sm sm:text-base">Обзор проектов и задач</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {stats.map((s) => (
           <div
             key={s.label}
-            className="bg-card border border-border rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 min-h-[4.5rem]"
+            className="nexus-surface rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 min-h-[4.5rem]"
           >
             <div className={`p-2.5 sm:p-3 rounded-lg bg-white/5 ${s.color} shrink-0`}>
               <s.icon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -96,7 +111,7 @@ export default function DashboardPage() {
       <div>
         <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Проекты</h2>
         {projects.length === 0 ? (
-          <div className="bg-card border border-border rounded-xl p-12 text-center">
+          <div className="nexus-surface nexus-surface--static rounded-xl p-12 text-center">
             <FolderKanban className="w-12 h-12 text-muted mx-auto mb-3" />
             <p className="text-muted">Нет проектов. Создайте первый!</p>
           </div>

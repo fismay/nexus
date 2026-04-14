@@ -30,7 +30,7 @@ export function AiBriefWidget() {
 
   if (loading) {
     return (
-      <div className="bg-card border border-border rounded-xl p-5">
+      <div className="nexus-surface nexus-surface--static rounded-xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <Brain className="w-5 h-5 text-purple-400" />
           <h3 className="text-sm font-semibold">AI Brief</h3>
@@ -43,7 +43,7 @@ export function AiBriefWidget() {
   }
 
   return (
-    <div className="bg-card/80 backdrop-blur-xl border border-border rounded-xl p-5">
+    <div className="nexus-surface nexus-surface--static rounded-xl p-5">
       <div className="flex items-center gap-2 mb-4">
         <Brain className="w-5 h-5 text-purple-400" />
         <h3 className="text-sm font-semibold">AI Brief</h3>

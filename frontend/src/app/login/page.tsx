@@ -41,7 +41,7 @@ export default function LoginPage() {
           <span className="text-3xl font-bold tracking-tight">Nexus</span>
         </div>
 
-        <div className="bg-card/80 backdrop-blur-xl border border-border rounded-2xl p-6 shadow-xl">
+        <div className="nexus-surface nexus-surface--static rounded-2xl p-6 shadow-xl">
           <div className="flex mb-6 bg-background rounded-lg p-0.5">
             {(["login", "register"] as const).map((m) => (
               <button

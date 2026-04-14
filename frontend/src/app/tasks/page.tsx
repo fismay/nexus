@@ -98,26 +98,42 @@ export default function TasksPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-6 max-w-3xl">
+        <div className="nexus-skeleton h-9 w-40 mb-2" />
+        <div className="nexus-skeleton h-4 w-64" />
+        <div className="flex gap-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="nexus-skeleton h-9 w-24 rounded-lg" />
+          ))}
+        </div>
+        <div className="space-y-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="nexus-surface nexus-surface--static rounded-lg px-4 py-3">
+              <div className="nexus-skeleton h-4 w-[85%]" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Задачи</h1>
-          <p className="text-muted mt-1">
+          <h1 className="nexus-page-title-bar text-2xl sm:text-3xl font-bold tracking-tight">
+            Задачи
+          </h1>
+          <p className="text-muted mt-2 text-sm sm:text-base">
             {activeTag
               ? `Фильтр: ${activeTag}`
               : "Глобальный список задач"}
           </p>
         </div>
         <button
+          type="button"
           onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           Добавить задачу
@@ -127,7 +143,7 @@ export default function TasksPage() {
       {showAdd && (
         <form
           onSubmit={handleCreate}
-          className="bg-card border border-border rounded-xl p-5 space-y-3"
+          className="nexus-surface nexus-surface--static rounded-xl p-5 space-y-3"
         >
           <input
             type="text"
@@ -245,7 +261,7 @@ export default function TasksPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-card border border-border rounded-xl p-12 text-center">
+        <div className="nexus-surface nexus-surface--static rounded-xl p-12 text-center">
           <ListTodo className="w-12 h-12 text-muted mx-auto mb-3" />
           <p className="text-muted">Нет задач</p>
         </div>
@@ -254,7 +270,7 @@ export default function TasksPage() {
           {filtered.map((task) => (
             <div
               key={task.id}
-              className="bg-card border border-border rounded-lg px-4 py-3 flex items-center gap-3 group hover:border-accent/30 transition-colors"
+              className="nexus-surface rounded-lg px-4 py-3 flex items-center gap-3 group"
             >
               <button
                 onClick={() => toggleComplete(task)}

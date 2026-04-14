@@ -39,8 +39,14 @@ export default function InboxPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-6 max-w-3xl">
+        <div className="nexus-skeleton h-9 w-44 mb-2" />
+        <div className="nexus-skeleton h-4 w-80 max-w-full" />
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="nexus-surface nexus-surface--static rounded-xl p-4 min-h-[100px]" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -48,14 +54,16 @@ export default function InboxPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Входящие</h1>
-        <p className="text-muted mt-1">
+        <h1 className="nexus-page-title-bar text-2xl sm:text-3xl font-bold tracking-tight">
+          Входящие
+        </h1>
+        <p className="text-muted mt-2 text-sm sm:text-base">
           Сообщения из Telegram-бота, ожидающие обработки
         </p>
       </div>
 
       {items.length === 0 ? (
-        <div className="bg-card border border-border rounded-xl p-16 text-center">
+        <div className="nexus-surface nexus-surface--static rounded-xl p-16 text-center">
           <Inbox className="w-16 h-16 text-muted mx-auto mb-4" />
           <h3 className="text-lg font-medium mb-2">Входящие пусты</h3>
           <p className="text-muted text-sm">
@@ -80,7 +88,7 @@ export default function InboxPage() {
             return (
               <div
                 key={item.id}
-                className="bg-card border border-border rounded-xl p-4 hover:border-accent/30 transition-colors"
+                className="nexus-surface rounded-xl p-4"
               >
                 <div className="flex items-start gap-3">
                   <MessageSquare className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />

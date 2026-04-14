@@ -245,8 +245,13 @@ export default function DailyViewPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-4 sm:space-y-6">
+        <div className="nexus-skeleton h-9 w-56 max-w-full" />
+        <div className="nexus-skeleton h-4 w-80 max-w-full" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="nexus-surface nexus-surface--static rounded-xl min-h-[200px] p-4" />
+          <div className="nexus-surface nexus-surface--static rounded-xl min-h-[200px] p-4" />
+        </div>
       </div>
     );
   }
@@ -257,7 +262,9 @@ export default function DailyViewPage() {
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Daily View</h1>
+            <h1 className="nexus-page-title-bar text-2xl sm:text-3xl font-bold tracking-tight">
+              Daily View
+            </h1>
             <p className="text-muted mt-1 text-xs sm:text-sm">
               {viewMode === "timeline" ? "Горизонтальная ось времени" : "Перетащите задачи на временные слоты"}
             </p>
@@ -273,7 +280,7 @@ export default function DailyViewPage() {
               <span className="hidden sm:inline">{aiLoading ? "Распределяю..." : "Magic Schedule"}</span>
               <span className="sm:hidden">{aiLoading ? "…" : "Magic"}</span>
             </button>
-            <div className="flex items-center bg-card border border-border rounded-lg p-0.5">
+            <div className="flex items-center nexus-surface nexus-surface--static rounded-lg p-0.5">
               <button
                 onClick={() => setViewMode("timeline")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
@@ -319,7 +326,7 @@ export default function DailyViewPage() {
 
         {/* AI result toast */}
         {aiResult && (
-          <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl px-4 py-3 flex items-center justify-between">
+          <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 px-4 py-3 backdrop-blur-sm flex items-center justify-between">
             <div className="text-sm">
               <Sparkles className="w-4 h-4 text-purple-400 inline mr-2" />
               {aiResult.message}
@@ -338,7 +345,7 @@ export default function DailyViewPage() {
         {viewMode === "timeline" ? (
           <>
             <TimelineContainer events={events} tasks={scheduledTasks} date={date} />
-            <div className="bg-card border border-border rounded-xl p-4">
+            <div className="nexus-surface nexus-surface--static rounded-xl p-4">
               <h2 className="text-sm font-semibold mb-3 text-muted uppercase tracking-wider">
                 Backlog ({backlogTasks.length})
               </h2>
@@ -354,7 +361,7 @@ export default function DailyViewPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
             {/* Backlog */}
-            <div className="bg-card border border-border rounded-xl p-4 order-2 lg:order-1">
+            <div className="nexus-surface nexus-surface--static rounded-xl p-4 order-2 lg:order-1">
               <h2 className="text-sm font-semibold mb-3 text-muted uppercase tracking-wider">
                 Backlog ({backlogTasks.length})
               </h2>
@@ -368,7 +375,7 @@ export default function DailyViewPage() {
             </div>
 
             {/* CSS Grid Calendar */}
-            <div className="bg-card border border-border rounded-xl overflow-hidden order-1 lg:order-2">
+            <div className="nexus-surface nexus-surface--static rounded-xl overflow-hidden order-1 lg:order-2">
               <div className="overflow-y-auto max-h-[calc(100vh-280px)]">
                 <div
                   className="grid relative"

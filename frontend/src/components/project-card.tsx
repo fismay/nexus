@@ -15,7 +15,7 @@ export function ProjectCardComponent({ project }: Props) {
   return (
     <Link
       href={`/projects/${project.id}`}
-      className="block bg-card border border-border rounded-xl p-5 hover:border-accent/40 hover:bg-card-hover transition-all group"
+      className="nexus-surface block rounded-xl p-5 transition-all group hover:-translate-y-0.5"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="min-w-0">

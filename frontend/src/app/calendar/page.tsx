@@ -121,8 +121,10 @@ export default function CalendarPage() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Календарь</h1>
-          <p className="text-muted mt-1 text-sm sm:text-base">Расписание и события</p>
+          <h1 className="nexus-page-title-bar text-2xl sm:text-3xl font-bold tracking-tight">
+            Календарь
+          </h1>
+          <p className="text-muted mt-2 text-sm sm:text-base">Расписание и события</p>
         </div>
         <div className="flex flex-wrap items-stretch gap-2 sm:justify-end sm:max-w-[min(100%,42rem)]">
           <button
@@ -187,11 +189,16 @@ export default function CalendarPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-96">
-          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <div className="nexus-surface nexus-surface--static rounded-xl overflow-hidden min-h-[24rem] p-4">
+          <div className="nexus-skeleton h-6 w-40 mb-4" />
+          <div className="grid grid-cols-8 gap-2">
+            {Array.from({ length: 24 }).map((_, i) => (
+              <div key={i} className="nexus-skeleton h-8 rounded-md" />
+            ))}
+          </div>
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-xl overflow-x-auto touch-pan-x">
+        <div className="nexus-surface nexus-surface--static rounded-xl overflow-x-auto touch-pan-x">
           <table className="w-full border-collapse" style={{ minWidth: 700, tableLayout: "fixed" }}>
             <colgroup>
               <col style={{ width: 44 }} />
