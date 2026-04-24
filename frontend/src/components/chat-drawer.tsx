@@ -77,15 +77,15 @@ export function ChatDrawer({ roomId, roomLabel, open, onClose }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed right-0 top-0 h-screen w-96 max-w-[calc(100vw-4rem)] bg-card/95 backdrop-blur-xl border-l border-border z-50 flex flex-col shadow-2xl">
+    <div className="fixed right-0 top-0 h-screen w-96 max-w-[calc(100vw-4rem)] bg-surface border-l border-border z-50 flex flex-col shadow-lg">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2 min-w-0">
           <MessageCircle className="w-4 h-4 text-accent flex-shrink-0" />
-          <span className="text-sm font-semibold truncate">{roomLabel}</span>
-          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${connected ? "bg-green-400" : "bg-red-400"}`} />
+          <span className="text-sm font-semibold truncate text-foreground">{roomLabel}</span>
+          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${connected ? "bg-success" : "bg-error"}`} />
         </div>
-        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-muted hover:text-foreground transition-colors">
+        <button onClick={onClose} className="p-1.5 rounded-md hover:bg-surface-hover text-foreground-muted hover:text-foreground transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -93,16 +93,16 @@ export function ChatDrawer({ roomId, roomLabel, open, onClose }: Props) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {messages.length === 0 && (
-          <p className="text-xs text-muted text-center py-8">Нет сообщений</p>
+          <p className="text-xs text-foreground-muted text-center py-8">Нет сообщений</p>
         )}
         {messages.map((m) => {
           const isMe = m.sender_id === user?.id;
           return (
             <div key={m.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-              <div className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${
+              <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                 isMe
-                  ? "bg-accent/20 text-foreground"
-                  : "bg-white/5 text-foreground"
+                  ? "bg-accent-subtle text-foreground"
+                  : "bg-surface-hover text-foreground"
               }`}>
                 {!isMe && (
                   <div className="text-[10px] text-accent font-medium mb-0.5">
@@ -111,7 +111,7 @@ export function ChatDrawer({ roomId, roomLabel, open, onClose }: Props) {
                 )}
                 <p className="break-words">{m.content}</p>
               </div>
-              <span className="text-[9px] text-muted mt-0.5 px-1">
+              <span className="text-[9px] text-foreground-muted mt-0.5 px-1">
                 {new Date(m.created_at).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
               </span>
             </div>
@@ -128,12 +128,12 @@ export function ChatDrawer({ roomId, roomLabel, open, onClose }: Props) {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), send())}
             placeholder="Сообщение..."
-            className="flex-1 bg-white/5 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-accent transition-colors"
+            className="flex-1 bg-surface-hover border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
           />
           <button
             onClick={send}
             disabled={!input.trim()}
-            className="p-2 rounded-lg bg-accent/20 text-accent hover:bg-accent/30 disabled:opacity-30 transition-colors"
+            className="p-2 rounded-lg bg-accent-subtle text-accent hover:bg-accent/20 disabled:opacity-30 transition-colors"
           >
             <Send className="w-4 h-4" />
           </button>

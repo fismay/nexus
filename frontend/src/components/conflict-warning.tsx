@@ -24,14 +24,14 @@ export function ConflictWarningBanner({
     : null;
 
   return (
-    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+    <div className="bg-warning/15 border border-warning/30 rounded-lg p-4">
       <div className="flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+        <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-amber-300">
+          <p className="text-sm font-medium text-foreground">
             Конфликт расписания
           </p>
-          <p className="text-sm text-muted mt-1">
+          <p className="text-sm text-foreground-muted mt-1">
             В это время у тебя{" "}
             <strong className="text-foreground">
               {conflict.conflicting_event_title}
@@ -44,7 +44,7 @@ export function ConflictWarningBanner({
             )}
           </p>
           {suggestedTime && (
-            <p className="text-sm text-muted mt-1">
+            <p className="text-sm text-foreground-muted mt-1">
               Перенести задачу на{" "}
               <strong className="text-accent">{suggestedTime}</strong>{" "}
               (ближайшее окно)?
@@ -63,7 +63,7 @@ export function ConflictWarningBanner({
             {onDismiss && (
               <button
                 onClick={onDismiss}
-                className="text-xs text-muted hover:text-foreground transition-colors"
+                className="text-xs text-foreground-muted hover:text-foreground-secondary transition-colors"
               >
                 Оставить как есть
               </button>

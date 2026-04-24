@@ -48,10 +48,10 @@ export function FocusModeOverlay() {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#0b0f1a] flex flex-col items-center justify-center">
+    <div className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center">
       {/* Pomodoro ring */}
       {timerMode === "pomodoro" && (
-        <svg className="absolute w-80 h-80 opacity-20" viewBox="0 0 200 200">
+        <svg className="absolute w-80 h-80 opacity-10" viewBox="0 0 200 200">
           <circle
             cx="100"
             cy="100"
@@ -65,7 +65,7 @@ export function FocusModeOverlay() {
             cy="100"
             r="90"
             fill="none"
-            stroke="#6366f1"
+            stroke="#4F46E5"
             strokeWidth="6"
             strokeLinecap="round"
             strokeDasharray={`${2 * Math.PI * 90}`}
@@ -77,7 +77,7 @@ export function FocusModeOverlay() {
       )}
 
       <div className="relative z-10 flex flex-col items-center gap-8">
-        <div className="flex items-center gap-2 text-muted text-sm">
+        <div className="flex items-center gap-2 text-foreground-muted text-sm">
           {timerMode === "pomodoro" ? (
             <Timer className="w-4 h-4" />
           ) : (
@@ -86,16 +86,16 @@ export function FocusModeOverlay() {
           {timerMode === "pomodoro" ? "Pomodoro 25 мин" : "Секундомер"}
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-bold text-center max-w-lg px-4">
+        <h1 className="text-2xl md:text-3xl font-bold text-center max-w-lg px-4 text-foreground">
           {task.title}
         </h1>
 
         <div
           className={`text-7xl md:text-8xl font-mono font-bold tabular-nums ${
             isTimerDone
-              ? "text-emerald-400 animate-pulse"
+              ? "text-success animate-pulse"
               : isPaused
-                ? "text-amber-400"
+                ? "text-warning"
                 : "text-foreground"
           }`}
         >
@@ -103,7 +103,7 @@ export function FocusModeOverlay() {
         </div>
 
         {isTimerDone && (
-          <p className="text-emerald-400 text-lg font-medium">
+          <p className="text-success text-lg font-medium">
             Время вышло! Отличная работа.
           </p>
         )}
@@ -112,7 +112,7 @@ export function FocusModeOverlay() {
           {isPaused ? (
             <button
               onClick={resumeFocus}
-              className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-xl text-sm font-medium transition-colors"
+              className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors"
             >
               <Play className="w-5 h-5" />
               Продолжить
@@ -120,7 +120,7 @@ export function FocusModeOverlay() {
           ) : (
             <button
               onClick={pauseFocus}
-              className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-xl text-sm font-medium transition-colors"
+              className="flex items-center gap-2 bg-warning hover:bg-warning/90 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors"
             >
               <Pause className="w-5 h-5" />
               Пауза
@@ -129,7 +129,7 @@ export function FocusModeOverlay() {
 
           <button
             onClick={handleComplete}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl text-sm font-medium transition-colors"
+            className="flex items-center gap-2 bg-success hover:bg-success/90 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors"
           >
             <CheckCircle2 className="w-5 h-5" />
             Завершить задачу
@@ -137,7 +137,7 @@ export function FocusModeOverlay() {
 
           <button
             onClick={stopFocus}
-            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-muted hover:text-foreground px-6 py-3 rounded-xl text-sm font-medium transition-colors"
+            className="flex items-center gap-2 bg-surface-hover hover:bg-border text-foreground-muted hover:text-foreground px-6 py-3 rounded-lg text-sm font-medium transition-colors border border-border-subtle"
           >
             <Square className="w-5 h-5" />
             Выйти

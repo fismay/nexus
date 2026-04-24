@@ -49,50 +49,50 @@ export function CreateProjectModal({ onClose, onCreated }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-card border border-border rounded-2xl w-full max-w-lg">
+      <div className="bg-surface border border-border rounded-xl w-full max-w-lg shadow-lg">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-lg font-semibold">Новый проект</h2>
-          <button onClick={onClose} className="text-muted hover:text-foreground">
+          <h2 className="text-lg font-semibold text-foreground">Новый проект</h2>
+          <button onClick={onClose} className="text-foreground-muted hover:text-foreground transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5">Название *</label>
+            <label className="block text-sm font-medium mb-1.5 text-foreground">Название *</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Мой проект"
-              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5">Описание</label>
+            <label className="block text-sm font-medium mb-1.5 text-foreground">Описание</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Краткое описание проекта..."
               rows={3}
-              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent resize-none"
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5">Тип проекта</label>
+            <label className="block text-sm font-medium mb-1.5 text-foreground">Тип проекта</label>
             <div className="flex flex-wrap gap-2">
               {Object.entries(PROJECT_TYPE_LABELS).map(([key, label]) => (
                 <button
                   key={key}
                   type="button"
                   onClick={() => setProjectType(key)}
-                  className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                  className={`text-xs px-3 py-1.5 rounded-md font-medium transition-colors ${
                     projectType === key
-                      ? PROJECT_TYPE_COLORS[key]
-                      : "bg-white/5 text-muted hover:text-foreground"
+                      ? (PROJECT_TYPE_COLORS[key] || "bg-accent-subtle text-accent")
+                      : "bg-surface-hover text-foreground-muted hover:text-foreground-secondary border border-border-subtle"
                   }`}
                 >
                   {label}
@@ -102,7 +102,7 @@ export function CreateProjectModal({ onClose, onCreated }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5">
+            <label className="block text-sm font-medium mb-1.5 text-foreground">
               Технологический стек
             </label>
             <div className="flex gap-2">
@@ -117,12 +117,12 @@ export function CreateProjectModal({ onClose, onCreated }: Props) {
                   }
                 }}
                 placeholder="React, Python..."
-                className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
+                className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
               />
               <button
                 type="button"
                 onClick={addTech}
-                className="bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg text-sm transition-colors"
+                className="bg-surface-hover hover:bg-surface text-foreground-secondary hover:text-foreground-primary px-3 py-2 rounded-lg text-sm transition-colors border border-border-subtle"
               >
                 Добавить
               </button>
@@ -132,7 +132,7 @@ export function CreateProjectModal({ onClose, onCreated }: Props) {
                 {techStack.map((t) => (
                   <span
                     key={t}
-                    className="text-xs bg-accent/15 text-accent px-2 py-1 rounded-md flex items-center gap-1"
+                    className="text-xs bg-accent-subtle text-accent px-2 py-1 rounded-md flex items-center gap-1 border border-accent/30"
                   >
                     {t}
                     <button
@@ -140,7 +140,7 @@ export function CreateProjectModal({ onClose, onCreated }: Props) {
                       onClick={() =>
                         setTechStack(techStack.filter((x) => x !== t))
                       }
-                      className="hover:text-white"
+                      className="hover:text-accent-hover"
                     >
                       ×
                     </button>
@@ -151,7 +151,7 @@ export function CreateProjectModal({ onClose, onCreated }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5">
+            <label className="block text-sm font-medium mb-1.5 text-foreground">
               Ссылка на репозиторий
             </label>
             <input
@@ -159,7 +159,7 @@ export function CreateProjectModal({ onClose, onCreated }: Props) {
               value={repoUrl}
               onChange={(e) => setRepoUrl(e.target.value)}
               placeholder="https://github.com/..."
-              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
             />
           </div>
 
@@ -167,7 +167,7 @@ export function CreateProjectModal({ onClose, onCreated }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm text-muted hover:text-foreground transition-colors"
+              className="px-4 py-2 text-sm text-foreground-muted hover:text-foreground transition-colors"
             >
               Отмена
             </button>

@@ -30,41 +30,41 @@ export function AiBriefWidget() {
 
   if (loading) {
     return (
-      <div className="nexus-surface nexus-surface--static rounded-xl p-5">
+      <div className="rounded-lg p-5 border border-border bg-surface">
         <div className="flex items-center gap-2 mb-3">
-          <Brain className="w-5 h-5 text-purple-400" />
-          <h3 className="text-sm font-semibold">AI Brief</h3>
+          <Brain className="w-5 h-5 text-accent" />
+          <h3 className="text-sm font-semibold text-foreground">AI Brief</h3>
         </div>
         <div className="flex items-center justify-center py-6">
-          <Loader2 className="w-5 h-5 animate-spin text-muted" />
+          <Loader2 className="w-5 h-5 animate-spin text-foreground-muted" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="nexus-surface nexus-surface--static rounded-xl p-5">
+    <div className="rounded-lg p-5 border border-border bg-surface">
       <div className="flex items-center gap-2 mb-4">
-        <Brain className="w-5 h-5 text-purple-400" />
-        <h3 className="text-sm font-semibold">AI Brief</h3>
+        <Brain className="w-5 h-5 text-accent" />
+        <h3 className="text-sm font-semibold text-foreground">AI Brief</h3>
         {insights.length > 0 && (
-          <span className="text-[10px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded-full">
+          <span className="text-[10px] bg-accent-subtle text-accent px-1.5 py-0.5 rounded-full">
             {insights.length}
           </span>
         )}
       </div>
 
       {aiSummary && (
-        <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3 mb-3">
+        <div className="bg-accent-subtle border border-accent/20 rounded-lg p-3 mb-3">
           <div className="flex items-start gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-purple-400 mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-purple-200 leading-relaxed">{aiSummary}</p>
+            <Sparkles className="w-3.5 h-3.5 text-accent mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-foreground-secondary leading-relaxed">{aiSummary}</p>
           </div>
         </div>
       )}
 
       {insights.length === 0 ? (
-        <p className="text-xs text-muted py-4 text-center">Всё под контролем. Нет застоявшихся элементов.</p>
+        <p className="text-xs text-foreground-muted py-4 text-center">Всё под контролем. Нет застоявшихся элементов.</p>
       ) : (
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {insights.map((ins, i) => (
@@ -72,18 +72,18 @@ export function AiBriefWidget() {
               key={i}
               className={`flex items-start gap-2.5 p-2.5 rounded-lg text-xs ${
                 ins.severity === "warning"
-                  ? "bg-amber-500/10 border border-amber-500/20"
-                  : "bg-blue-500/10 border border-blue-500/20"
+                  ? "bg-warning/15 border border-warning/30 text-warning"
+                  : "bg-info/15 border border-info/30 text-info"
               }`}
             >
               {ins.severity === "warning" ? (
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 mt-0.5 flex-shrink-0" />
+                <AlertTriangle className="w-3.5 h-3.5 text-warning mt-0.5 flex-shrink-0" />
               ) : (
-                <Info className="w-3.5 h-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
+                <Info className="w-3.5 h-3.5 text-info mt-0.5 flex-shrink-0" />
               )}
               <div>
-                <p className="font-medium">{ins.title}</p>
-                <p className="text-muted mt-0.5">{ins.suggestion}</p>
+                <p className="font-medium text-foreground">{ins.title}</p>
+                <p className="text-foreground-muted mt-0.5">{ins.suggestion}</p>
               </div>
             </div>
           ))}

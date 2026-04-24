@@ -54,7 +54,7 @@ export function CommandPalette() {
         aria-label="Закрыть"
         onClick={() => setOpen(false)}
       />
-      <div className="relative z-[101] w-full max-w-lg max-h-[min(85dvh,32rem)] mt-2 sm:mt-0 bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative z-[101] w-full max-w-lg max-h-[min(85dvh,32rem)] mt-2 sm:mt-0 bg-surface border border-border rounded-xl shadow-lg overflow-hidden flex flex-col">
         <Command
           label="Command Palette"
           filter={(value, search) => {
@@ -63,38 +63,38 @@ export function CommandPalette() {
           }}
         >
           <div className="flex items-center gap-3 px-4 border-b border-border">
-            <Search className="w-4 h-4 text-muted flex-shrink-0" />
+            <Search className="w-4 h-4 text-foreground-muted flex-shrink-0" />
             <Command.Input
               value={query}
               onValueChange={setQuery}
               placeholder="Поиск задач, проектов, команд..."
-              className="flex-1 py-3.5 bg-transparent text-sm outline-none placeholder:text-muted"
+              className="flex-1 py-3.5 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-muted"
             />
-            <kbd className="text-[10px] text-muted bg-white/5 px-1.5 py-0.5 rounded">ESC</kbd>
+            <kbd className="text-[10px] text-foreground-muted bg-border-subtle px-1.5 py-0.5 rounded">ESC</kbd>
           </div>
 
           <Command.List className="max-h-[min(60dvh,20rem)] sm:max-h-80 overflow-y-auto p-2 overscroll-contain">
-            <Command.Empty className="py-6 text-center text-sm text-muted">
+            <Command.Empty className="py-6 text-center text-sm text-foreground-muted">
               Ничего не найдено
             </Command.Empty>
 
             <Command.Group heading="Навигация">
-              <Command.Item onSelect={() => go("/")} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer data-[selected=true]:bg-accent/15 data-[selected=true]:text-accent">
+              <Command.Item onSelect={() => go("/")} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-foreground-muted data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent data-[selected=true]:font-medium transition-colors">
                 <LayoutDashboard className="w-4 h-4" />Дашборд
               </Command.Item>
-              <Command.Item onSelect={() => go("/projects")} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer data-[selected=true]:bg-accent/15 data-[selected=true]:text-accent">
+              <Command.Item onSelect={() => go("/projects")} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-foreground-muted data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent data-[selected=true]:font-medium transition-colors">
                 <FolderKanban className="w-4 h-4" />Проекты
               </Command.Item>
-              <Command.Item onSelect={() => go("/tasks")} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer data-[selected=true]:bg-accent/15 data-[selected=true]:text-accent">
+              <Command.Item onSelect={() => go("/tasks")} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-foreground-muted data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent data-[selected=true]:font-medium transition-colors">
                 <ListTodo className="w-4 h-4" />Задачи
               </Command.Item>
-              <Command.Item onSelect={() => go("/calendar")} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer data-[selected=true]:bg-accent/15 data-[selected=true]:text-accent">
+              <Command.Item onSelect={() => go("/calendar")} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-foreground-muted data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent data-[selected=true]:font-medium transition-colors">
                 <CalendarDays className="w-4 h-4" />Календарь
               </Command.Item>
-              <Command.Item onSelect={() => go("/nexus-map")} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer data-[selected=true]:bg-accent/15 data-[selected=true]:text-accent">
+              <Command.Item onSelect={() => go("/nexus-map")} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-foreground-muted data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent data-[selected=true]:font-medium transition-colors">
                 <Network className="w-4 h-4" />NexusMap (Граф)
               </Command.Item>
-              <Command.Item onSelect={() => go("/inbox")} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer data-[selected=true]:bg-accent/15 data-[selected=true]:text-accent">
+              <Command.Item onSelect={() => go("/inbox")} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-foreground-muted data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent data-[selected=true]:font-medium transition-colors">
                 <Inbox className="w-4 h-4" />Входящие
               </Command.Item>
             </Command.Group>
@@ -102,8 +102,8 @@ export function CommandPalette() {
             {projects.length > 0 && (
               <Command.Group heading="Проекты">
                 {projects.map((p) => (
-                  <Command.Item key={p.id} value={p.title} onSelect={() => go(`/projects/${p.id}`)} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer data-[selected=true]:bg-accent/15 data-[selected=true]:text-accent">
-                    <FolderKanban className="w-4 h-4 text-muted" />{p.title}
+                  <Command.Item key={p.id} value={p.title} onSelect={() => go(`/projects/${p.id}`)} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-foreground-muted data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent data-[selected=true]:font-medium transition-colors">
+                    <FolderKanban className="w-4 h-4 text-foreground-muted" />{p.title}
                   </Command.Item>
                 ))}
               </Command.Group>
@@ -112,8 +112,8 @@ export function CommandPalette() {
             {tasks.length > 0 && (
               <Command.Group heading="Задачи">
                 {tasks.map((t) => (
-                  <Command.Item key={t.id} value={t.title} onSelect={() => go("/tasks")} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer data-[selected=true]:bg-accent/15 data-[selected=true]:text-accent">
-                    <ListTodo className="w-4 h-4 text-muted" />{t.title}
+                  <Command.Item key={t.id} value={t.title} onSelect={() => go("/tasks")} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-foreground-muted data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent data-[selected=true]:font-medium transition-colors">
+                    <ListTodo className="w-4 h-4 text-foreground-muted" />{t.title}
                   </Command.Item>
                 ))}
               </Command.Group>
@@ -121,17 +121,17 @@ export function CommandPalette() {
 
             {user && (
               <Command.Group heading="Аккаунт">
-                <Command.Item onSelect={() => go("/friends")} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer data-[selected=true]:bg-accent/15 data-[selected=true]:text-accent">
+                <Command.Item onSelect={() => go("/friends")} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-foreground-muted data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent data-[selected=true]:font-medium transition-colors">
                   <User className="w-4 h-4" />Друзья
                 </Command.Item>
-                <Command.Item onSelect={() => { logout(); setOpen(false); }} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-pointer text-red-400 data-[selected=true]:bg-red-500/15">
+                <Command.Item onSelect={() => { logout(); setOpen(false); }} className="flex items-center gap-3 px-3 py-2 rounded-md text-sm cursor-pointer text-error data-[selected=true]:bg-error/15 data-[selected=true]:text-error data-[selected=true]:font-medium transition-colors">
                   <LogOut className="w-4 h-4" />Выйти
                 </Command.Item>
               </Command.Group>
             )}
           </Command.List>
 
-          <div className="flex items-center justify-between px-4 py-2 border-t border-border text-[10px] text-muted">
+          <div className="flex items-center justify-between px-4 py-2 border-t border-border text-[10px] text-foreground-muted">
             <span>↑↓ навигация · Enter выбрать · Esc закрыть</span>
             <span>Ctrl+K</span>
           </div>

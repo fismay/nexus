@@ -1,34 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0f1a;
-  --foreground: #e2e8f0;
-  --card: #111827;
-  --card-hover: #1e293b;
-  --border: #1e293b;
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --muted: #64748b;
-  --nexus-radius: 1rem;
-  --nexus-shadow: 0 8px 32px -12px rgba(0, 0, 0, 0.55);
-  --nexus-shadow-glow: 0 12px 40px -16px rgba(99, 102, 241, 0.22);
+  /* Professional Color Palette */
+  --background: #0F172A;
+  --surface: #1E293B;
+  --surface-hover: #334155;
+  --foreground: #F1F5F9;
+  --foreground-secondary: #94A3B8;
+  --foreground-muted: #64748B;
+  
+  /* Accent Colors */
+  --accent: #4F46E5;
+  --accent-hover: #6366F1;
+  --accent-subtle: rgba(79, 70, 229, 0.1);
+  
+  /* Semantic */
+  --border: #334155;
+  --border-subtle: rgba(30, 41, 59, 0.3);
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --muted: #64748B;
+  
+  /* Spacing & Typography */
+  --nexus-radius: 0.75rem;
+  --nexus-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --font-inter: "Segoe UI Variable", "Bahnschrift", "Trebuchet MS", "Gill Sans", "Arial", sans-serif;
+  --font-mono: "Cascadia Mono", "JetBrains Mono", "Consolas", monospace;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-card: var(--surface);
   --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-hover: var(--card-hover);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-muted: var(--foreground-muted);
   --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
-  --color-muted: var(--muted);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-mono);
 }
@@ -36,10 +52,11 @@
 html {
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
+  background-color: var(--background);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100dvh;
@@ -49,21 +66,21 @@ body {
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--accent) 38%, transparent);
+  background: var(--accent-subtle);
   color: var(--foreground);
 }
 
 :focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--accent) 55%, transparent);
-  outline-offset: 3px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ambient-orb {
-    filter: none !important;
+    display: none !important;
   }
   .ambient-grid {
-    opacity: 0.08 !important;
+    opacity: 0 !important;
   }
 }
 
@@ -103,7 +120,7 @@ body {
   padding-right: env(safe-area-inset-right, 0px);
 }
 
-/* Main content offset under fixed mobile chrome (header ~3.5rem + safe area; bottom nav + safe area) */
+/* Main content offset under fixed mobile chrome */
 .mobile-main-offset {
   padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
   padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
@@ -116,64 +133,52 @@ body {
   }
 }
 
-/* Контентная область: бокс-сайзинг; отступы задаются в AppShell */
+/* Content Area */
 .nexus-page {
   box-sizing: border-box;
   max-width: 100%;
 }
 
-.nexus-page h1,
-.nexus-page h2,
-.nexus-page > div > p {
-  padding-left: 0.125rem;
-  padding-right: 0.125rem;
-}
-
-@media (min-width: 640px) {
-  .nexus-page h1,
-  .nexus-page h2,
-  .nexus-page > div > p {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
-
-/* Карточки / панели: стекло + лёгкий подъём при hover */
+/* ——— Flat Card Design with Minimal Borders ——— */
 .nexus-surface {
   border-radius: var(--nexus-radius);
-  border: 1px solid color-mix(in oklab, var(--border) 90%, white 4%);
-  background: color-mix(in oklab, var(--card) 88%, transparent);
-  box-shadow: var(--nexus-shadow);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.25s ease,
-    transform 0.2s ease;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--surface);
+  box-shadow: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .nexus-surface:hover {
-  border-color: color-mix(in oklab, var(--accent) 28%, var(--border));
-  box-shadow: var(--nexus-shadow-glow);
+  background-color: var(--surface-hover);
+  border-color: var(--border);
 }
 
 @media (hover: none) {
   .nexus-surface:hover {
-    transform: none;
+    background-color: var(--surface);
   }
 }
 
-/* Панели без hover-подсветки (сайдбар, хром) */
-.nexus-surface--static:hover {
-  border-color: color-mix(in oklab, var(--border) 90%, white 4%);
-  box-shadow: var(--nexus-shadow);
+/* Static surfaces (sidebar, chrome) */
+.nexus-surface--static {
+  border-color: var(--border-subtle);
+  background-color: var(--surface);
+  box-shadow: none;
 }
 
-/* Заголовок страницы: акцентная линия */
+.nexus-surface--static:hover {
+  border-color: var(--border-subtle);
+  background-color: var(--surface);
+}
+
+/* Page Title */
 .nexus-page-title-bar {
   position: relative;
   display: inline-block;
-  padding-bottom: 0.35rem;
+  padding-bottom: 0.5rem;
+  color: var(--foreground);
+  font-size: 1.875rem;
+  font-weight: 600;
 }
 
 .nexus-page-title-bar::after {
@@ -181,14 +186,13 @@ body {
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 3rem;
-  height: 3px;
-  border-radius: 9999px;
-  background: linear-gradient(90deg, var(--accent), transparent);
-  opacity: 0.85;
+  width: 2rem;
+  height: 2px;
+  border-radius: 1px;
+  background-color: var(--accent);
 }
 
-/* Скелетон загрузки */
+/* Skeleton Loading */
 @keyframes nexus-shimmer {
   100% {
     transform: translateX(100%);
@@ -199,7 +203,7 @@ body {
   position: relative;
   overflow: hidden;
   border-radius: 0.5rem;
-  background: color-mix(in oklab, var(--foreground) 8%, transparent);
+  background-color: var(--surface-hover);
 }
 
 .nexus-skeleton::after {
@@ -210,14 +214,21 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in oklab, white 8%, transparent),
+    rgba(255, 255, 255, 0.05),
     transparent
   );
-  animation: nexus-shimmer 1.1s ease-in-out infinite;
+  animation: nexus-shimmer 1.5s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nexus-skeleton::after {
     animation: none;
   }
+}
+
+/* ——— Active Navigation State ——— */
+.nav-active {
+  background-color: rgba(79, 70, 229, 0.15);
+  color: var(--foreground);
+  border-left: 3px solid var(--accent);
 }

@@ -26,20 +26,20 @@ export function Sidebar() {
   const { user, logout } = useAuth();
 
   return (
-    <aside className="nexus-surface nexus-surface--static fixed left-0 top-0 h-screen w-64 flex flex-col z-40 rounded-none border-y-0 border-l-0 bg-card/75">
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-border">
+    <aside className="fixed left-0 top-0 h-screen w-64 flex flex-col z-40 border-r border-border bg-surface rounded-none shadow-none">
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-border-subtle">
         <Hexagon className="w-7 h-7 text-accent" />
-        <span className="text-xl font-bold tracking-tight">Nexus</span>
+        <span className="text-xl font-bold tracking-tight text-foreground">Nexus</span>
       </div>
 
       {/* Cmd+K hint */}
       <button
         onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))}
-        className="mx-3 mt-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 text-muted hover:text-foreground text-xs transition-colors"
+        className="mx-3 mt-3 flex items-center gap-2 px-3 py-2 rounded-md bg-surface-hover text-foreground-muted hover:text-foreground-secondary text-xs transition-colors border border-border-subtle"
       >
         <Search className="w-3.5 h-3.5" />
         <span className="flex-1 text-left">Поиск...</span>
-        <kbd className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded">⌘K</kbd>
+        <kbd className="text-[10px] bg-border-subtle px-1.5 py-0.5 rounded">⌘K</kbd>
       </button>
 
       <nav className="flex-1 py-3 px-3 space-y-0.5 overflow-y-auto">
@@ -49,13 +49,13 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-accent/15 text-accent"
-                  : "text-muted hover:text-foreground hover:bg-white/5"
+                  ? "bg-accent-subtle text-accent border-l-2 border-accent pl-[10px]"
+                  : "text-foreground-muted hover:text-foreground-secondary hover:bg-surface-hover"
               }`}
             >
-              <Icon className="w-4.5 h-4.5" />
+              <Icon className="w-4.5 h-4.5 flex-shrink-0" />
               {label}
             </Link>
           );
@@ -63,26 +63,28 @@ export function Sidebar() {
       </nav>
 
       {/* Context Tags */}
-      <div className="px-3 py-3 border-t border-border">
-        <div className="flex items-center gap-2 px-3 mb-2">
-          <Tag className="w-3.5 h-3.5 text-muted" />
-          <span className="text-[10px] text-muted font-medium uppercase tracking-wider">Контекст</span>
+      <div className="px-3 py-3 border-t border-border-subtle space-y-2">
+        <div className="flex items-center gap-2 px-3">
+          <Tag className="w-3.5 h-3.5 text-foreground-muted" />
+          <span className="text-[10px] text-foreground-muted font-medium uppercase tracking-wider">Контекст</span>
         </div>
         <div className="space-y-0.5">
           {CONTEXT_TAGS.map((tag) => (
             <button
               key={tag.value}
               onClick={() => toggleTag(tag.value)}
-              className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                activeTag === tag.value ? tag.color : "text-muted hover:text-foreground hover:bg-white/5"
+              className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                activeTag === tag.value 
+                  ? "bg-accent-subtle text-accent" 
+                  : "text-foreground-muted hover:text-foreground-secondary hover:bg-surface-hover"
               }`}
             >
-              <span className={`w-2 h-2 rounded-full ${activeTag === tag.value ? "bg-current" : "bg-muted/40"}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${activeTag === tag.value ? "bg-accent" : "bg-border"}`} />
               {tag.label}
             </button>
           ))}
           {activeTag && (
-            <button onClick={() => toggleTag(activeTag)} className="w-full text-xs text-muted hover:text-foreground px-3 py-1 transition-colors">
+            <button onClick={() => toggleTag(activeTag)} className="w-full text-xs text-foreground-muted hover:text-foreground-secondary px-3 py-1 transition-colors">
               Сбросить фильтр
             </button>
           )}
@@ -90,23 +92,23 @@ export function Sidebar() {
       </div>
 
       {/* User */}
-      <div className="px-3 py-3 border-t border-border">
+      <div className="px-3 py-3 border-t border-border-subtle">
         {user ? (
-          <div className="flex items-center justify-between px-3">
+          <div className="flex items-center justify-between px-3 py-2 rounded-md bg-surface-hover">
             <div className="min-w-0">
-              <div className="text-xs font-medium truncate">{user.display_name || user.username}</div>
-              <div className="text-[10px] text-muted truncate">{user.email}</div>
+              <div className="text-xs font-medium truncate text-foreground">{user.display_name || user.username}</div>
+              <div className="text-[10px] text-foreground-muted truncate">{user.email}</div>
             </div>
-            <button onClick={logout} className="p-1.5 rounded-lg text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Выйти">
+            <button onClick={logout} className="p-1.5 rounded-md text-foreground-muted hover:text-error hover:bg-error/10 transition-colors flex-shrink-0" title="Выйти">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
         ) : (
-          <Link href="/login" className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-accent hover:bg-accent/10 transition-colors">
+          <Link href="/login" className="flex items-center justify-center gap-2 px-3 py-2 rounded-md text-xs font-medium text-accent bg-accent-subtle hover:bg-accent/20 transition-colors border border-accent/30">
             Войти / Регистрация
           </Link>
         )}
-        <div className="text-[10px] text-muted/50 text-center mt-2">Nexus v0.5.0</div>
+        <div className="text-[10px] text-foreground-muted/60 text-center mt-2">Nexus v0.5.0</div>
       </div>
     </aside>
   );

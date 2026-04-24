@@ -49,16 +49,16 @@ export function EventCreateModal({ onClose, onCreated }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-card border border-border rounded-2xl w-full max-w-md">
+      <div className="bg-surface border border-border rounded-xl w-full max-w-md shadow-lg">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-lg font-semibold">Новое событие</h2>
-          <button onClick={onClose} className="text-muted hover:text-foreground">
+          <h2 className="text-lg font-semibold text-foreground">Новое событие</h2>
+          <button onClick={onClose} className="text-foreground-muted hover:text-foreground transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5">
+            <label className="block text-sm font-medium mb-1.5 text-foreground">
               Название *
             </label>
             <input
@@ -66,16 +66,16 @@ export function EventCreateModal({ onClose, onCreated }: Props) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Математический анализ, Синхронизация с командой..."
-              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5">Тип</label>
+            <label className="block text-sm font-medium mb-1.5 text-foreground">Тип</label>
             <select
               value={eventType}
               onChange={(e) => setEventType(e.target.value)}
-              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
             >
               {EVENT_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -92,32 +92,32 @@ export function EventCreateModal({ onClose, onCreated }: Props) {
           />
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Начало</label>
+              <label className="block text-sm font-medium mb-1.5 text-foreground">Начало</label>
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">
+              <label className="block text-sm font-medium mb-1.5 text-foreground">
                 Окончание
               </label>
               <input
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
               />
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <label className="flex items-center gap-2 text-sm cursor-pointer text-foreground-secondary hover:text-foreground-primary">
             <input
               type="checkbox"
               checked={isRecurring}
               onChange={(e) => setIsRecurring(e.target.checked)}
-              className="w-4 h-4 accent-accent rounded"
+              className="w-4 h-4 accent-accent rounded border border-border"
             />
             Еженедельное повторение
           </label>
@@ -125,7 +125,7 @@ export function EventCreateModal({ onClose, onCreated }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm text-muted hover:text-foreground transition-colors"
+              className="px-4 py-2 text-sm text-foreground-muted hover:text-foreground transition-colors"
             >
               Отмена
             </button>

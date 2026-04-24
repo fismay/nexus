@@ -37,15 +37,15 @@ export function MobileNav() {
   return (
     <>
       {/* Top bar — phone & tablet (< lg) */}
-      <header className="nexus-surface nexus-surface--static fixed top-0 left-0 right-0 z-50 flex items-center justify-between min-h-14 rounded-none border-x-0 border-t-0 bg-card/85 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[env(safe-area-inset-top,0px)] lg:hidden">
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between min-h-14 rounded-none border-b border-border bg-surface pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[env(safe-area-inset-top,0px)] lg:hidden">
         <div className="flex items-center gap-2">
           <Hexagon className="w-6 h-6 text-accent" />
-          <span className="text-lg font-bold tracking-tight">Nexus</span>
+          <span className="text-lg font-bold tracking-tight text-foreground">Nexus</span>
         </div>
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
-          className="p-2.5 min-h-11 min-w-11 rounded-lg hover:bg-white/10 text-muted hover:text-foreground transition-colors flex items-center justify-center"
+          className="p-2.5 min-h-11 min-w-11 rounded-md hover:bg-surface-hover text-foreground-muted hover:text-foreground transition-colors flex items-center justify-center"
           aria-label="Открыть меню"
         >
           <Menu className="w-5 h-5" />
@@ -53,15 +53,15 @@ export function MobileNav() {
       </header>
 
       {/* Bottom navigation — phone & tablet */}
-      <nav className="nexus-surface nexus-surface--static fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around gap-0.5 min-h-[3.75rem] rounded-none border-x-0 border-b-0 bg-card/85 pb-[env(safe-area-inset-bottom,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] pt-1 lg:hidden safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around gap-0.5 min-h-[3.75rem] rounded-none border-t border-border bg-surface pb-[env(safe-area-inset-bottom,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] pt-1 lg:hidden safe-area-bottom">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
             <Link
               key={href}
               href={href}
-              className={`flex flex-col items-center justify-center gap-0.5 min-w-0 flex-1 max-w-[5.5rem] py-1.5 px-1 rounded-xl transition-colors active:scale-[0.98] ${
-                isActive ? "text-accent bg-accent/10" : "text-muted"
+              className={`flex flex-col items-center justify-center gap-0.5 min-w-0 flex-1 max-w-[5.5rem] py-1.5 px-1 rounded-md transition-colors active:scale-[0.98] ${
+                isActive ? "text-accent bg-accent-subtle" : "text-foreground-muted hover:text-foreground"
               }`}
             >
               <Icon className="w-[22px] h-[22px] shrink-0" />
@@ -80,13 +80,13 @@ export function MobileNav() {
             aria-label="Закрыть меню"
             onClick={() => setDrawerOpen(false)}
           />
-          <aside className="nexus-surface nexus-surface--static absolute left-0 top-0 bottom-0 w-[min(20rem,88vw)] max-w-[100vw] rounded-none border-y-0 border-l-0 bg-card/95 pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] flex flex-col animate-slide-in-left">
+          <aside className="absolute left-0 top-0 bottom-0 w-[min(20rem,88vw)] max-w-[100vw] rounded-none border-r border-border bg-surface pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] flex flex-col animate-slide-in-left">
             <div className="flex items-center justify-between px-4 py-4 border-b border-border">
               <div className="flex items-center gap-2">
                 <Hexagon className="w-6 h-6 text-accent" />
-                <span className="text-lg font-bold">Nexus</span>
+                <span className="text-lg font-bold text-foreground">Nexus</span>
               </div>
-              <button type="button" onClick={() => setDrawerOpen(false)} className="p-2 min-h-11 min-w-11 rounded-lg hover:bg-white/10 text-muted flex items-center justify-center">
+              <button type="button" onClick={() => setDrawerOpen(false)} className="p-2 min-h-11 min-w-11 rounded-md hover:bg-surface-hover text-foreground-muted flex items-center justify-center">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -98,8 +98,8 @@ export function MobileNav() {
                     key={href}
                     href={href}
                     onClick={() => setDrawerOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-3 min-h-12 rounded-xl text-sm font-medium transition-colors ${
-                      isActive ? "bg-accent/15 text-accent" : "text-muted hover:text-foreground hover:bg-white/5"
+                    className={`flex items-center gap-3 px-3 py-3 min-h-12 rounded-md text-sm font-medium transition-colors ${
+                      isActive ? "bg-accent-subtle text-accent" : "text-foreground-muted hover:text-foreground-secondary hover:bg-surface-hover"
                     }`}
                   >
                     <Icon className="w-5 h-5 shrink-0" />
@@ -110,8 +110,8 @@ export function MobileNav() {
             </nav>
             <div className="px-3 py-3 border-t border-border">
               <div className="flex items-center gap-2 px-2 mb-2">
-                <Tag className="w-3.5 h-3.5 text-muted" />
-                <span className="text-[10px] text-muted font-medium uppercase tracking-wider">Контекст</span>
+                <Tag className="w-3.5 h-3.5 text-foreground-muted" />
+                <span className="text-[10px] text-foreground-muted font-medium uppercase tracking-wider">Контекст</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {CONTEXT_TAGS.map((tag) => (
